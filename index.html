@@ -11,22 +11,20 @@
 
 <body class="p-4 bg-gray-50">
 
-  <h2 class="font-bold text-center mb-6">Registro</h2>
+  <h2 class="font-bold text-center mb-4">Registro</h2>
 
-  <form id="transactionForm" class="space-y-4 bg-white p-6 rounded-lg shadow-md">
+  <form id="transactionForm" class="space-y-3 bg-white p-4 rounded-lg shadow-md">
 
-    <div class="flex gap-2 justify-center">
+    <div class="flex gap-1 justify-center">
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Gasto" class="peer sr-only" checked onchange="updateCategories()">
-        <div
-          class="peer-checked:bg-red-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div class="peer-checked:bg-red-500 peer-checked:text-white px-2 py-1 rounded-md text-xs font-semibold transition-all">
           Gasto
         </div>
       </label>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Ingreso" class="peer sr-only" onchange="updateCategories()">
-        <div
-          class="peer-checked:bg-green-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div class="peer-checked:bg-green-500 peer-checked:text-white px-2 py-1 rounded-md text-xs font-semibold transition-all">
           Ingreso
         </div>
       </label>
@@ -34,61 +32,61 @@
 
     <!-- Monto -->
     <div>
-      <label class="block text-sm font-medium mb-1">Monto</label>
+      <label class="block text-xs font-medium mb-1">Monto</label>
       <div class="relative">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
         <input type="number" name="amount" id="amountInput"
           class="w-full pl-8 pr-28 py-2 text-base font-medium border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
           placeholder="0.00" required>
-        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+        <div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
           <button type="button" onclick="addAmount(-1)"
-            class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">-</button>
+            class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">-</button>
           <button type="button" onclick="addAmount(1)"
-            class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">+</button>
+            class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">+</button>
           <button type="button" onclick="clearAmount()"
-            class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all font-medium text-sm sm:text-base">×</button>
+            class="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all font-medium text-xs">×</button>
         </div>
       </div>
     </div>
 
     <!-- Botones de incremento -->
-    <div id="incrementButtons" class="grid grid-cols-4 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-6"></div>
+    <div id="incrementButtons" class="grid grid-cols-4 gap-1 mt-3"></div>
 
     <!-- Categorías -->
     <div id="categorySection">
-      <label id="categoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Categorías +</label>
-      <div id="categoryContainer" class="flex overflow-x-auto gap-4 py-2">
+      <label id="categoryLabel" class="block text-xs font-medium mb-1 cursor-pointer">Categorías +</label>
+      <div id="categoryContainer" class="flex overflow-x-auto gap-2 py-1">
         <!-- Aquí van las categorías dinámicas -->
       </div>
     </div>
 
     <!-- Sub-Categorías -->
     <div id="subcategorySection">
-      <label id="subcategoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Sub-Categorías +</label>
-      <div id="subcategoryContainer" class="flex overflow-x-auto gap-4 py-2">
+      <label id="subcategoryLabel" class="block text-xs font-medium mb-1 cursor-pointer">Sub-Categorías +</label>
+      <div id="subcategoryContainer" class="flex overflow-x-auto gap-2 py-1">
         <!-- Aquí van las subcategorías dinámicas -->
       </div>
     </div>
 
     <!-- Descripción -->
     <div>
-      <label class="block text-sm font-medium mb-1">Descripción</label>
-      <textarea name="description" placeholder="Descripción" id="descriptionInput" rows="3"
-        class="w-full px-3 py-2 text-base border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"></textarea>
+      <label class="block text-xs font-medium mb-1">Descripción</label>
+      <textarea name="description" placeholder="Descripción" id="descriptionInput" rows="2"
+        class="w-full px-2 py-1 text-xs border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"></textarea>
     </div>
 
     <!-- Persona -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Persona:</label>
-      <div id="personContainer" class="grid grid-cols-3 gap-1 sm:gap-4"></div>
+      <label class="block text-xs font-medium text-gray-700 mb-1">Persona:</label>
+      <div id="personContainer" class="grid grid-cols-5 gap-1"></div>
     </div>
 
     <!-- Botón de guardar -->
     <button id="submitButton" type="submit"
-      class="w-full py-3 sm:py-4  text-white font-bold rounded-lg  transition-all flex items-center justify-center">Guardar
+      class="w-full py-2 text-white font-bold rounded-lg transition-all flex items-center justify-center">Guardar
       Registro</button>
-    <span id="errorMessage" class="hidden text-red-600 mt-2">Error al guardar registro, inténtalo nuevamente</span>
-    <div id="errorMessage2" class="hidden text-red-600 mt-2"></div>
+    <span id="errorMessage" class="hidden text-red-600 mt-1 text-xs">Error al guardar registro, inténtalo nuevamente</span>
+    <div id="errorMessage2" class="hidden text-red-600 mt-1 text-xs"></div>
   </form>
 
   <script>
@@ -162,7 +160,7 @@
         ? categories.map(cat => `
           <label class="relative cursor-pointer">
             <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
               <div class="text-xs sm:text-sm font-medium">${cat}</div>
             </div>
           </label>
@@ -178,7 +176,7 @@
         ? subcategories.map(subcat => `
           <label class="relative cursor-pointer">
             <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
               <div class="text-xs sm:text-sm font-medium">${subcat}</div>
             </div>
           </label>
@@ -230,7 +228,7 @@
         categoryContainer.insertAdjacentHTML('afterbegin', `
           <label class="relative cursor-pointer">
             <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
               <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
             </div>
           </label>
@@ -251,7 +249,7 @@
         subcategoryContainer.insertAdjacentHTML('afterbegin', `
           <label class="relative cursor-pointer">
             <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
               <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
             </div>
           </label>
@@ -278,7 +276,7 @@
         { value: 'Katya', emoji: '👩' },
         { value: 'Alvik', emoji: '👶' },
         { value: 'Familia', emoji: '👪' },
-        { value: 'Gatos', emoji: '🐈' }
+        { value: 'Gatos', emoji: '🐈'}
       ];
       const personContainer = document.getElementById('personContainer');
       personContainer.innerHTML = persons.map(person => `
@@ -286,7 +284,7 @@
           <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
           <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
             <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
-            <div class="text-xs sm:text-base font-medium">${person.value}</div>
+            <div class="text-xs sm:text-base font-medium whitespace-nowrap">${person.value}</div>
           </div>
         </label>
       `).join('');
