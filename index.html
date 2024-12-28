@@ -18,13 +18,15 @@
     <div class="flex gap-2 justify-center">
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Gasto" class="peer sr-only" checked onchange="updateCategories()">
-        <div class="peer-checked:bg-red-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div
+          class="peer-checked:bg-red-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
           Gasto
         </div>
       </label>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Ingreso" class="peer sr-only" onchange="updateCategories()">
-        <div class="peer-checked:bg-green-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div
+          class="peer-checked:bg-green-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
           Ingreso
         </div>
       </label>
@@ -83,7 +85,7 @@
 
     <!-- Botón de guardar -->
     <button id="submitButton" type="submit"
-      class="w-full py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-all">Guardar
+      class="w-full py-3 sm:py-4  text-white font-bold rounded-lg  transition-all flex items-center justify-center">Guardar
       Registro</button>
     <span id="errorMessage" class="hidden text-red-600 mt-2">Error al guardar registro, inténtalo nuevamente</span>
     <div id="errorMessage2" class="hidden text-red-600 mt-2"></div>
@@ -94,12 +96,14 @@
       loadData();
       renderIncrementButtons();
       renderPersonOptions();
+      updateSubmitButtonColor();
     });
 
     const scriptUrl = "https://script.google.com/macros/s/AKfycbz12ufB9cShH9VtMyt1h08kIBQIBlvFdM7Af0UrBy2guAJEyTAcmuVqLRHmPbL5LOR2/exec";
     let subcategoryCounts = {};
     let categoryData = {};
 
+    // Cargar datos de categorías y subcategorías desde Google Sheets
     async function loadData() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo/values/Finanzas!A2:G?key=AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0`;
       const categoryContainer = document.getElementById('categoryContainer');
@@ -132,21 +136,26 @@
       }
     }
 
+    // Incrementar o decrementar el monto
     function addAmount(value) {
       const input = document.getElementById('amountInput');
       input.value = (parseFloat(input.value) || 0) + value;
     }
 
+    // Limpiar el monto
     function clearAmount() {
       document.getElementById('amountInput').value = '';
     }
 
+    // Actualizar las categorías según el tipo seleccionado
     function updateCategories() {
       const selectedType = document.querySelector('input[name="type"]:checked').value;
       const categories = categoryData[selectedType] ? Object.keys(categoryData[selectedType]) : [];
       populateCategories(categories);
+      updateSubmitButtonColor();
     }
 
+    // Llenar las categorías en el contenedor
     function populateCategories(categories) {
       const categoryContainer = document.getElementById('categoryContainer');
       categoryContainer.innerHTML = categories.length
@@ -161,6 +170,7 @@
         : '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
     }
 
+    // Llenar las subcategorías en el contenedor
     function populateSubcategories(category) {
       const subcategoryContainer = document.getElementById('subcategoryContainer');
       const subcategories = subcategoryCounts[category] ? Object.keys(subcategoryCounts[category]) : [];
@@ -176,6 +186,7 @@
         : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
     }
 
+    // Enviar el formulario
     async function submitForm(event) {
       event.preventDefault();
       const submitButton = document.getElementById('submitButton');
@@ -190,9 +201,12 @@
       try {
         const response = await fetch(scriptUrl, { method: 'POST', body: new URLSearchParams(formData) });
         if (response.ok) {
-          submitButton.textContent = 'Guardado';
+          submitButton.textContent = 'Datos enviados';
           errorMessage.classList.add('hidden');
           event.target.reset();
+          setTimeout(() => {
+            location.reload();
+          }, 5000);
         } else {
           throw new Error('Error al guardar');
         }
@@ -208,6 +222,7 @@
     }
     document.getElementById('transactionForm').addEventListener('submit', submitForm);
 
+    // Agregar nueva categoría
     document.getElementById('categoryLabel').addEventListener('click', () => {
       const newCategory = prompt('Ingrese el nombre de la nueva categoría:');
       if (newCategory) {
@@ -223,6 +238,7 @@
       }
     });
 
+    // Agregar nueva subcategoría
     document.getElementById('subcategoryLabel').addEventListener('click', () => {
       const selectedCategory = document.querySelector('input[name="category"]:checked');
       if (!selectedCategory) {
@@ -243,6 +259,7 @@
       }
     });
 
+    // Renderizar botones de incremento
     function renderIncrementButtons() {
       const incrementValues = [1, 5, 10, 50, 100, 500, 1000, 10000];
       const incrementButtonsContainer = document.getElementById('incrementButtons');
@@ -254,13 +271,14 @@
       `).join('');
     }
 
+    // Renderizar opciones de personas
     function renderPersonOptions() {
       const persons = [
         { value: 'Lían', emoji: '🧔‍♂️' },
         { value: 'Katya', emoji: '👩' },
         { value: 'Alvik', emoji: '👶' },
         { value: 'Familia', emoji: '👪' },
-        { value: 'Gatos', emoji: '🐈'}
+        { value: 'Gatos', emoji: '🐈' }
       ];
       const personContainer = document.getElementById('personContainer');
       personContainer.innerHTML = persons.map(person => `
@@ -273,6 +291,25 @@
         </label>
       `).join('');
     }
+
+    // Actualizar el color del botón de enviar según el tipo seleccionado
+    function updateSubmitButtonColor() {
+      const submitButton = document.getElementById('submitButton');
+      const selectedType = document.querySelector('input[name="type"]:checked').value;
+      if (selectedType === 'Ingreso') {
+        submitButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+        submitButton.classList.add('bg-green-500', 'hover:bg-green-600');
+      } else {
+        submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+        submitButton.classList.add('bg-red-500', 'hover:bg-red-600');
+      }
+    }
+
+    // Agregar evento de cambio a los botones de radio de tipo
+    document.querySelectorAll('input[name="type"]').forEach(radio => {
+      radio.addEventListener('change', updateSubmitButtonColor);
+    });
+
   </script>
 </body>
 
