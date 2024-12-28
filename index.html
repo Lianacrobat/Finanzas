@@ -7,65 +7,6 @@
   <title>Formulario Finanzas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    @keyframes progress {
-      0% {
-        width: 0;
-      }
-
-      100% {
-        width: 100%;
-      }
-    }
-
-    @keyframes checkmark {
-      0% {
-        stroke-dashoffset: 50;
-      }
-
-      100% {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    .progress-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.3);
-      animation: progress 10s linear forwards;
-    }
-
-    .checkmark {
-      width: 24px;
-      height: 24px;
-      stroke-width: 2;
-      stroke: white;
-      fill: none;
-      stroke-dasharray: 50;
-      stroke-dashoffset: 50;
-      animation: checkmark 0.5s ease-in-out forwards;
-    }
-
-    /* Estilo para el manejo de errores */
-    .error-message {
-      color: #b91c1c;
-      font-weight: bold;
-    }
-
-    /* Estilo para el contenedor de categorías */
-    #categoryContainer, #subcategoryContainer {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding: 0.5rem 0;
-    }
-
-    #categoryContainer label, #subcategoryContainer label {
-      flex: 0 0 auto;
-    }
-  </style>
 </head>
 
 <body class="p-4 bg-gray-50">
@@ -77,15 +18,13 @@
     <div class="flex gap-2 justify-center">
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Gasto" class="peer sr-only" checked onchange="updateCategories()">
-        <div
-          class="peer-checked:bg-red-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div class="peer-checked:bg-red-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
           Gasto
         </div>
       </label>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="radio" name="type" value="Ingreso" class="peer sr-only" onchange="updateCategories()">
-        <div
-          class="peer-checked:bg-green-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
+        <div class="peer-checked:bg-green-500 peer-checked:text-white px-3 py-1 rounded-md text-sm font-semibold transition-all">
           Ingreso
         </div>
       </label>
@@ -111,54 +50,21 @@
     </div>
 
     <!-- Botones de incremento -->
-    <div class="grid grid-cols-4 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-6">
-      <button type="button" onclick="addAmount(1)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$1
-      </button>
-      <button type="button" onclick="addAmount(5)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$5
-      </button>
-      <button type="button" onclick="addAmount(10)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$10
-      </button>
-      <button type="button" onclick="addAmount(50)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$50
-      </button>
-      <button type="button" onclick="addAmount(100)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$100
-      </button>
-      <button type="button" onclick="addAmount(500)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$500
-      </button>
-      <button type="button" onclick="addAmount(1000)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$1000
-      </button>
-      <button type="button" onclick="addAmount(10000)"
-        class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-        +$10k
-      </button>
-    </div>
+    <div id="incrementButtons" class="grid grid-cols-4 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-6"></div>
 
     <!-- Categorías -->
     <div id="categorySection">
       <label id="categoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Categorías +</label>
-      <div id="categoryContainer" class="grid grid-cols-5 gap-1">
-<!-- Aquí van las categorías dinámicas -->
+      <div id="categoryContainer" class="flex overflow-x-auto gap-4 py-2">
+        <!-- Aquí van las categorías dinámicas -->
       </div>
     </div>
 
     <!-- Sub-Categorías -->
     <div id="subcategorySection">
       <label id="subcategoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Sub-Categorías +</label>
-      <div id="subcategoryContainer" class="grid grid-cols-5 gap-1">
-<!-- Aquí van las subcategorías dinámicas -->
+      <div id="subcategoryContainer" class="flex overflow-x-auto gap-4 py-2">
+        <!-- Aquí van las subcategorías dinámicas -->
       </div>
     </div>
 
@@ -172,48 +78,7 @@
     <!-- Persona -->
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">Persona:</label>
-      <div class="grid grid-cols-3 gap-1 sm:gap-4">
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="Lían" class="peer sr-only" checked>
-          <div
-            class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">🧔‍♂️</div>
-            <div class="text-xs sm:text-base font-medium">Lían</div>
-          </div>
-        </label>
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="Katya" class="peer sr-only">
-          <div
-            class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">👩</div>
-            <div class="text-xs sm:text-base font-medium">Katya</div>
-          </div>
-        </label>
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="Alvik" class="peer sr-only">
-          <div
-            class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">👶</div>
-            <div class="text-xs sm:text-base font-medium">Alvik</div>
-          </div>
-        </label>
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="Familia" class="peer sr-only">
-          <div
-            class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">👪</div>
-            <div class="text-xs sm:text-base font-medium">Familia</div>
-          </div>
-        </label>
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="Gatos" class="peer sr-only">
-          <div
-            class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">🐈</div>
-            <div class="text-xs sm:text-base font-medium">Betty & Hen</div>
-          </div>
-        </label>
-      </div>
+      <div id="personContainer" class="grid grid-cols-3 gap-1 sm:gap-4"></div>
     </div>
 
     <!-- Botón de guardar -->
@@ -225,7 +90,11 @@
   </form>
 
   <script>
-    document.addEventListener('DOMContentLoaded', loadData);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      renderIncrementButtons();
+      renderPersonOptions();
+    });
 
     const scriptUrl = "https://script.google.com/macros/s/AKfycbz12ufB9cShH9VtMyt1h08kIBQIBlvFdM7Af0UrBy2guAJEyTAcmuVqLRHmPbL5LOR2/exec";
     let subcategoryCounts = {};
@@ -244,14 +113,12 @@
 
         if (data.values) {
           data.values.forEach(row => {
-            const type = row[1];
-            const category = row[2];
-            const subcategory = row[3];
+            const [, type, category, subcategory] = row;
             if (!categoryData[type]) categoryData[type] = {};
             if (category) categoryData[type][category] = (categoryData[type][category] || 0) + 1;
             if (subcategory) {
-              if (!subcategoryCounts[category]) subcategoryCounts[category] = [];
-              subcategoryCounts[category].push(subcategory);
+              if (!subcategoryCounts[category]) subcategoryCounts[category] = {};
+              subcategoryCounts[category][subcategory] = (subcategoryCounts[category][subcategory] || 0) + 1;
             }
           });
 
@@ -296,8 +163,7 @@
         ? categories.map(cat => `
           <label class="relative cursor-pointer">
             <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
-            <div
-              class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
               <div class="text-xs sm:text-sm font-medium">${cat}</div>
             </div>
           </label>
@@ -307,13 +173,12 @@
 
     function populateSubcategories(category) {
       const subcategoryContainer = document.getElementById('subcategoryContainer');
-      const subcategories = subcategoryCounts[category] || [];
+      const subcategories = subcategoryCounts[category] ? Object.entries(subcategoryCounts[category]).sort((a, b) => b[1] - a[1]).map(([subcat]) => subcat) : [];
       subcategoryContainer.innerHTML = subcategories.length
         ? subcategories.map(subcat => `
           <label class="relative cursor-pointer">
             <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
-            <div
-              class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
               <div class="text-xs sm:text-sm font-medium">${subcat}</div>
             </div>
           </label>
@@ -321,6 +186,7 @@
         : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
     }
 
+    //enviar datos a sheets
     async function submitForm(event) {
       event.preventDefault();
       const submitButton = document.getElementById('submitButton');
@@ -332,10 +198,7 @@
       const formData = new FormData(event.target);
       formData.append('dateTime', new Date().toISOString());
 
-      console.log("Datos enviados:", Object.fromEntries(formData.entries()));
-
-      const params = new URLSearchParams();
-      formData.forEach((value, key) => params.append(key, value));
+      const params = new URLSearchParams(formData);
 
       try {
         const response = await fetch(scriptUrl, { method: 'POST', body: params });
@@ -356,9 +219,9 @@
         }, 5000);
       }
     }
-
     document.getElementById('transactionForm').addEventListener('submit', submitForm);
 
+    // Añadir evento para crear una nueva categoría
     document.getElementById('categoryLabel').addEventListener('click', () => {
       const newCategory = prompt('Ingrese el nombre de la nueva categoría:');
       if (newCategory) {
@@ -370,7 +233,8 @@
             <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
           </div>
         `;
-        categoryContainer.insertBefore(newCategoryElement, categoryContainer.firstChild);
+        // Insertar la nueva categoría al principio del contenedor
+        categoryContainer.prepend(newCategoryElement);
       }
     });
 
@@ -393,6 +257,37 @@
         subcategoryContainer.insertBefore(newSubcategoryElement, subcategoryContainer.firstChild);
       }
     });
+
+    function renderIncrementButtons() {
+      const incrementValues = [1, 5, 10, 50, 100, 500, 1000, 10000];
+      const incrementButtonsContainer = document.getElementById('incrementButtons');
+      incrementButtonsContainer.innerHTML = incrementValues.map(value => `
+        <button type="button" onclick="addAmount(${value})"
+          class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
+          +$${value}
+        </button>
+      `).join('');
+    }
+
+    function renderPersonOptions() {
+      const persons = [
+        { value: 'Lían', emoji: '🧔‍♂️' },
+        { value: 'Katya', emoji: '👩' },
+        { value: 'Alvik', emoji: '👶' },
+        { value: 'Familia', emoji: '👪' },
+        { value: 'Gatos', emoji: '🐈'}
+      ];
+      const personContainer = document.getElementById('personContainer');
+      personContainer.innerHTML = persons.map(person => `
+        <label class="relative cursor-pointer">
+          <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
+          <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+            <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
+            <div class="text-xs sm:text-base font-medium">${person.label || person.value}</div>
+          </div>
+        </label>
+      `).join('');
+    }
   </script>
 </body>
 
