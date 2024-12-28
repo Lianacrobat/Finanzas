@@ -39,9 +39,9 @@
           class="w-full pl-8 pr-28 py-2 text-base font-medium border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
           placeholder="0.00" required>
         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-          <button type="button" onclick="decrementAmount()"
+          <button type="button" onclick="addAmount(-1)"
             class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">-</button>
-          <button type="button" onclick="incrementAmount()"
+          <button type="button" onclick="addAmount(1)"
             class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 text-xs">+</button>
           <button type="button" onclick="clearAmount()"
             class="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all font-medium text-sm sm:text-base">×</button>
@@ -109,7 +109,6 @@
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
-        const categoryCounts = {};
 
         if (data.values) {
           data.values.forEach(row => {
@@ -135,20 +134,11 @@
 
     function addAmount(value) {
       const input = document.getElementById('amountInput');
-      const currentValue = parseFloat(input.value) || 0;
-      input.value = currentValue + value;
+      input.value = (parseFloat(input.value) || 0) + value;
     }
 
     function clearAmount() {
       document.getElementById('amountInput').value = '';
-    }
-
-    function incrementAmount() {
-      addAmount(1);
-    }
-
-    function decrementAmount() {
-      addAmount(-1);
     }
 
     function updateCategories() {
@@ -173,7 +163,7 @@
 
     function populateSubcategories(category) {
       const subcategoryContainer = document.getElementById('subcategoryContainer');
-      const subcategories = subcategoryCounts[category] ? Object.entries(subcategoryCounts[category]).sort((a, b) => b[1] - a[1]).map(([subcat]) => subcat) : [];
+      const subcategories = subcategoryCounts[category] ? Object.keys(subcategoryCounts[category]) : [];
       subcategoryContainer.innerHTML = subcategories.length
         ? subcategories.map(subcat => `
           <label class="relative cursor-pointer">
@@ -186,7 +176,6 @@
         : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
     }
 
-    //enviar datos a sheets
     async function submitForm(event) {
       event.preventDefault();
       const submitButton = document.getElementById('submitButton');
@@ -198,10 +187,8 @@
       const formData = new FormData(event.target);
       formData.append('dateTime', new Date().toISOString());
 
-      const params = new URLSearchParams(formData);
-
       try {
-        const response = await fetch(scriptUrl, { method: 'POST', body: params });
+        const response = await fetch(scriptUrl, { method: 'POST', body: new URLSearchParams(formData) });
         if (response.ok) {
           submitButton.textContent = 'Guardado';
           errorMessage.classList.add('hidden');
@@ -221,20 +208,18 @@
     }
     document.getElementById('transactionForm').addEventListener('submit', submitForm);
 
-    // Añadir evento para crear una nueva categoría
     document.getElementById('categoryLabel').addEventListener('click', () => {
       const newCategory = prompt('Ingrese el nombre de la nueva categoría:');
       if (newCategory) {
         const categoryContainer = document.getElementById('categoryContainer');
-        const newCategoryElement = document.createElement('label');
-        newCategoryElement.innerHTML = `
-          <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
-          <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
-          </div>
-        `;
-        // Insertar la nueva categoría al principio del contenedor
-        categoryContainer.prepend(newCategoryElement);
+        categoryContainer.insertAdjacentHTML('afterbegin', `
+          <label class="relative cursor-pointer">
+            <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+              <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
+            </div>
+          </label>
+        `);
       }
     });
 
@@ -247,14 +232,14 @@
       const newSubcategory = prompt('Ingrese el nombre de la nueva subcategoría:');
       if (newSubcategory) {
         const subcategoryContainer = document.getElementById('subcategoryContainer');
-        const newSubcategoryElement = document.createElement('label');
-        newSubcategoryElement.innerHTML = `
-          <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
-          <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
-          </div>
-        `;
-        subcategoryContainer.insertBefore(newSubcategoryElement, subcategoryContainer.firstChild);
+        subcategoryContainer.insertAdjacentHTML('afterbegin', `
+          <label class="relative cursor-pointer">
+            <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
+            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+              <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
+            </div>
+          </label>
+        `);
       }
     });
 
@@ -283,7 +268,7 @@
           <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
           <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
             <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
-            <div class="text-xs sm:text-base font-medium">${person.label || person.value}</div>
+            <div class="text-xs sm:text-base font-medium">${person.value}</div>
           </div>
         </label>
       `).join('');
