@@ -7,25 +7,43 @@
   <title>Formulario Finanzas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Estilos adicionales */
+
+
+    .connected {
+      color: red;
+    }
+
+    .disconnected {
+      color: green;
+    }
+  </style>
 </head>
 
 <body class="flex items-center justify-center min-h-screen transition-colors duration-500">
 
   <div class="w-full max-w-md">
-    <h2 class="font-bold text-center mb-4">Registro</h2>
+    <header>
+      <h1 class="font-bold items-center mb-6">App Finanzas,
+        <span id="connectionStatus" class="connection-status">VPN 🔴</span>
+      </h1>
+    </header>
 
     <form id="transactionForm" class="space-y-3 bg-white p-4 rounded-lg shadow-md">
 
-      <div class="flex gap-1 justify-center">
+      <div class="flex gap-2 justify-center">
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="radio" name="type" value="Gasto" class="peer sr-only" checked onchange="updateCategories()">
-          <div class="peer-checked:bg-red-500 peer-checked:text-white px-2 py-1 rounded-md text-xs font-semibold transition-all">
+          <div
+            class="peer-checked:bg-red-500 peer-checked:text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
             Gasto
           </div>
         </label>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="radio" name="type" value="Ingreso" class="peer sr-only" onchange="updateCategories()">
-          <div class="peer-checked:bg-green-500 peer-checked:text-white px-2 py-1 rounded-md text-xs font-semibold transition-all">
+          <div
+            class="peer-checked:bg-green-500 peer-checked:text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
             Ingreso
           </div>
         </label>
@@ -63,7 +81,7 @@
 
       <!-- Sub-Categorías -->
       <div id="subcategorySection">
-        <label id="subcategoryLabel" class="block text-xs font-medium mb-1 cursor-pointer">Sub-Categorías +</label>
+        <label id="subcategoryLabel" class="block text-xs font-medium mb-1 cursor-pointer">Subcategorías +</label>
         <div id="subcategoryContainer" class="flex overflow-x-auto gap-2 py-1">
           <!-- Aquí van las subcategorías dinámicas -->
         </div>
@@ -79,15 +97,15 @@
       <!-- Persona -->
       <div>
         <label class="block text-xs font-medium text-gray-700 mb-1">Persona:</label>
-        <div id="personContainer" class="grid grid-cols-3 gap-1"></div>
+        <div id="personContainer" class="grid grid-cols-5 gap-1"></div>
       </div>
 
       <!-- Botón de guardar -->
       <button id="submitButton" type="submit"
         class="w-full py-2 text-white font-bold rounded-lg transition-all flex items-center justify-center">Guardar
         Registro</button>
-      <span id="errorMessage" class="hidden text-red-600 mt-1 text-xs">Error al guardar registro, inténtalo nuevamente</span>
-      <div id="errorMessage2" class="hidden text-red-600 mt-1 text-xs"></div>
+      <span id="errorMessage" class="hidden text-red-600 mt-1 text-xs">Error al guardar registro, inténtalo
+        nuevamente</span>
     </form>
   </div>
 
@@ -97,17 +115,16 @@
       renderIncrementButtons();
       renderPersonOptions();
       updateSubmitButtonColor();
+      checkGoogleApiConnection();
     });
 
     const scriptUrl = "https://script.google.com/macros/s/AKfycbz12ufB9cShH9VtMyt1h08kIBQIBlvFdM7Af0UrBy2guAJEyTAcmuVqLRHmPbL5LOR2/exec";
     let subcategoryCounts = {};
     let categoryData = {};
 
-    // Cargar datos de categorías y subcategorías desde Google Sheets
     async function loadData() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo/values/Finanzas!A2:G?key=AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0`;
       const categoryContainer = document.getElementById('categoryContainer');
-      const errorMessage2 = document.getElementById('errorMessage2');
 
       try {
         const response = await fetch(url);
@@ -131,23 +148,20 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        errorMessage2.textContent = 'No se pudieron cargar las categorías.';
-        errorMessage2.classList.remove('hidden');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = 'No se pudieron cargar las categorías.';
       }
     }
 
-    // Incrementar o decrementar el monto
     function addAmount(value) {
       const input = document.getElementById('amountInput');
       input.value = (parseFloat(input.value) || 0) + value;
     }
 
-    // Limpiar el monto
     function clearAmount() {
       document.getElementById('amountInput').value = '';
     }
 
-    // Actualizar las categorías según el tipo seleccionado
     function updateCategories() {
       const selectedType = document.querySelector('input[name="type"]:checked').value;
       const categories = categoryData[selectedType] ? Object.keys(categoryData[selectedType]) : [];
@@ -156,38 +170,35 @@
       updateBodyBackgroundColor();
     }
 
-    // Llenar las categorías en el contenedor
     function populateCategories(categories) {
       const categoryContainer = document.getElementById('categoryContainer');
       categoryContainer.innerHTML = categories.length
         ? categories.map(cat => `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${cat}</div>
-            </div>
-          </label>
-        `).join('')
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
+                        <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
+                            <div class="text-xs sm:text-sm font-medium">${cat}</div>
+                        </div>
+                    </label>
+                `).join('')
         : '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
     }
 
-    // Llenar las subcategorías en el contenedor
     function populateSubcategories(category) {
       const subcategoryContainer = document.getElementById('subcategoryContainer');
       const subcategories = subcategoryCounts[category] ? Object.keys(subcategoryCounts[category]) : [];
       subcategoryContainer.innerHTML = subcategories.length
         ? subcategories.map(subcat => `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${subcat}</div>
-            </div>
-          </label>
-        `).join('')
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
+                        <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
+                            <div class="text-xs sm:text-sm font-medium">${subcat}</div>
+                        </div>
+                    </label>
+                `).join('')
         : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
     }
 
-    // Enviar el formulario No se pudieron cargar las categorías.
     async function submitForm(event) {
       event.preventDefault();
       const submitButton = document.getElementById('submitButton');
@@ -223,23 +234,21 @@
     }
     document.getElementById('transactionForm').addEventListener('submit', submitForm);
 
-    // Agregar nueva categoría
     document.getElementById('categoryLabel').addEventListener('click', () => {
       const newCategory = prompt('Ingrese el nombre de la nueva categoría:');
       if (newCategory) {
         const categoryContainer = document.getElementById('categoryContainer');
         categoryContainer.insertAdjacentHTML('afterbegin', `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
-            </div>
-          </label>
-        `);
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
+                        <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
+                            <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
+                        </div>
+                    </label>
+                `);
       }
     });
 
-    // Agregar nueva subcategoría
     document.getElementById('subcategoryLabel').addEventListener('click', () => {
       const selectedCategory = document.querySelector('input[name="category"]:checked');
       if (!selectedCategory) {
@@ -250,50 +259,47 @@
       if (newSubcategory) {
         const subcategoryContainer = document.getElementById('subcategoryContainer');
         subcategoryContainer.insertAdjacentHTML('afterbegin', `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
-            </div>
-          </label>
-        `);
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
+                        <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs whitespace-nowrap">
+                            <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
+                        </div>
+                    </label>
+                `);
       }
     });
 
-    // Renderizar botones de incremento
     function renderIncrementButtons() {
       const incrementValues = [1, 5, 10, 50, 100, 500, 1000, 10000];
       const incrementButtonsContainer = document.getElementById('incrementButtons');
       incrementButtonsContainer.innerHTML = incrementValues.map(value => `
-        <button type="button" onclick="addAmount(${value})"
-          class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-          +$${value}
-        </button>
-      `).join('');
+                <button type="button" onclick="addAmount(${value})"
+                    class="py-2 sm:px-6 sm:py-3 border border-gray-200 font-medium rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
+                    +$${value}
+                </button>
+            `).join('');
     }
 
-    // Renderizar opciones de personas
     function renderPersonOptions() {
       const persons = [
         { value: 'Lían', emoji: '🧔‍♂️' },
         { value: 'Katya', emoji: '👩' },
         { value: 'Alvik', emoji: '👶' },
         { value: 'Familia', emoji: '👪' },
-        { value: 'Gatos', emoji: '🐈'}
+        { value: 'Gatos', emoji: '🐈' }
       ];
       const personContainer = document.getElementById('personContainer');
       personContainer.innerHTML = persons.map(person => `
-        <label class="relative cursor-pointer">
-          <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
-          <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
-            <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
-            <div class="text-xs sm:text-base font-medium whitespace-nowrap">${person.value}</div>
-          </div>
-        </label>
-      `).join('');
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
+                    <div class="p-1 text-center border rounded-md peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all text-xs">
+                        <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
+                        <div class="text-xs sm:text-base font-medium whitespace-nowrap">${person.value}</div>
+                    </div>
+                </label>
+            `).join('');
     }
 
-    // Actualizar el color del botón de enviar y el fondo del body según el tipo seleccionado
     function updateSubmitButtonColor() {
       const submitButton = document.getElementById('submitButton');
       const selectedType = document.querySelector('input[name="type"]:checked').value;
@@ -311,11 +317,24 @@
       }
     }
 
-    // Agregar evento de cambio a los botones de radio de tipo
     document.querySelectorAll('input[name="type"]').forEach(radio => {
       radio.addEventListener('change', updateSubmitButtonColor);
     });
 
+    async function checkGoogleApiConnection() {
+      const connectionStatus = document.getElementById('connectionStatus');
+      try {
+        const response = await fetch('https://www.googleapis.com');
+        if (!response.ok) throw new Error('Error de conexión');
+        connectionStatus.textContent = 'VPN 🔴';
+        connectionStatus.classList.remove('disconnected');
+        connectionStatus.classList.add('connected');
+      } catch (error) {
+        connectionStatus.textContent = 'VPN 🟢';
+        connectionStatus.classList.remove('connected');
+        connectionStatus.classList.add('disconnected');
+      }
+    }
   </script>
 </body>
 
