@@ -7,15 +7,12 @@
   <title>Formulario Finanzas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="logoFinanzas.png">
 </head>
 
-<body class="flex items-center justify-center min-h-screen transition-colors duration-500 bg-red-50">
+<body class=" transition-colors duration-500 bg-red-50">
 
   <div class="container mx-auto p-4">
-    <form id="transactionForm" class="space-y-4 bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+    <form id="transactionForm" class="space-y-4 bg-white p-4 rounded-lg shadow-md ">
       <h2 class="font-bold text-center mb-6">Nuevo Registro:</h2>
 
       <!-- Tipo de Transacción -->
@@ -40,7 +37,7 @@
       <div>
         <label class="block text-sm font-medium mb-1">Monto</label>
         <div class="relative">
-          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">¥</span>
           <input type="number" name="amount" id="amountInput"
             class="w-full pl-8 pr-28 py-2 text-base font-medium border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
             placeholder="0.00" required>
@@ -94,16 +91,6 @@
   </div>
 
   <script>
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito:', registration);
-        })
-        .catch(error => {
-          console.log('Error al registrar el Service Worker:', error);
-        });
-    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadData();
@@ -306,8 +293,8 @@
       const incrementValues = [1, 5, 10, 50, 100, 500, 1000, 10000];
       const incrementButtonsContainer = document.getElementById('incrementButtons');
       incrementButtonsContainer.innerHTML = incrementValues.map(value => `
-              <button type="button" onclick="addAmount(${value})" class="py-2 sm:px-6 border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 text-xs sm:text-base">
-                  +$${value}
+              <button type="button" onclick="addAmount(${value})" class="py-2 sm:px-6 border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-xs sm:text-sm font-medium">
+                  ${value}
               </button>
           `).join('');
     }
@@ -315,11 +302,11 @@
     // Renderizar opciones de personas
     function renderPersonOptions() {
       const persons = [
-        { value: 'Lían', emoji: '🧔‍♂️' },
+        { value: 'Lían', emoji: '🐺' },
         { value: 'Katya', emoji: '👩' },
-        { value: 'Alvik', emoji: '👶' },
+        { value: 'Alvik', emoji: '🧑‍🚀' },
         { value: 'Familia', emoji: '👪' },
-        { value: 'Gatos', emoji: '🐈' }
+        { value: 'Miaus', emoji: '🐈💩' }
       ];
       const personContainer = document.getElementById('personContainer');
       personContainer.innerHTML = persons.map(person => `
