@@ -4,10 +4,9 @@ self.addEventListener('install', event => {
     caches.open('app-cache').then(cache => {
       return cache.addAll([
         '/',
-        '/registro.html',
+        '/index.html',
         '/manifest.json',
-        '/icon-192x192.png',
-        '/icon-512x512.png'
+        '/logoFinanzas.png'
       ]);
     })
   );
