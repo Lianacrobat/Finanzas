@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Financiero</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50">
+  <div class="container mx-auto px-4 py-8">
+
+    <!-- Saldo General -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg p-6 mb-8">
+      <div class="text-white">
+        <p class="text-lg opacity-90">Balance Total</p>
+        <p id="totalBalance" class="text-4xl font-bold">¥0,00</p>
+        <div class="flex items-center mt-2">
+          <span class="bg-green-400 rounded-full px-2 py-1 text-sm">+2.4%</span>
+          <span class="ml-2 text-sm opacity-90">VS Mes anterior</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categorías -->
+    <div id="categoryCards" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full" role="dialog" aria-modal="true">
+
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-96 shadow-lg rounded-md bg-white">
+
+      <div class="mt-3">
+
+        <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+          
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+
+        </button>
+
+        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle"></h3>
+        <div class="mt-2 px-7 py-3">
+          <p class="text-3xl font-bold text-gray-800" id="modalTotal"></p>
+          <ul id="modalSubcategories" class="list-disc list-inside mt-4"></ul>
+        </div>
+        <div class="items-center px-4 py-3">
+          <button onclick="closeModal()"
+            class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sheetUrl = "https://sheets.googleapis.com/v4/spreadsheets/1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo/values/Finanzas!A2:G?key=AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0";
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const data = await fetchData();
+      renderSummary(data);
+      renderCategoryCards(data);
+    });
+
+    async function fetchData() {
+      try {
+        const response = await fetch(sheetUrl);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const json = await response.json();
+        return json.values || [];
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return [];
+      }
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'CNY', minimumFractionDigits: 2 }).format(amount);
+    }
+
+    function renderSummary(data) {
+      let totalExpenses = 0;
+      let totalIncome = 0;
+
+      data.forEach(row => {
+        const [, type, , , , amount] = row;
+        const parsedAmount = parseFloat(amount);
+        if (type === 'Gasto') totalExpenses += parsedAmount;
+        if (type === 'Ingreso') totalIncome += parsedAmount;
+      });
+
+      const balance = totalIncome - totalExpenses;
+      document.getElementById('totalBalance').textContent = formatCurrency(balance);
+    }
+
+    function renderCategoryCards(data) {
+      const categories = {};
+
+      data.forEach(row => {
+        const [, type, category, subcategory, , amount] = row;
+        const parsedAmount = parseFloat(amount);
+        if (!categories[category]) categories[category] = { total: 0, subcategories: {} };
+        categories[category].total += parsedAmount * (type === 'Gasto' ? -1 : 1);
+        if (!categories[category].subcategories[subcategory]) categories[category].subcategories[subcategory] = 0;
+        categories[category].subcategories[subcategory] += parsedAmount * (type === 'Gasto' ? -1 : 1);
+      });
+
+      const categoryCards = Object.entries(categories).map(([category, { total, subcategories }]) => `
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">${category}</h3>
+            <button class="text-gray-300 hover:text-gray-400" onclick="showDetails('${category}', ${total}, ${JSON.stringify(subcategories).replace(/"/g, '&quot;')})" aria-label="Ver detalles de ${category}">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </div>
+          <p class="text-1xl font-bold ${total < 0 ? 'text-red-600' : 'text-green-600'} mt-2">${formatCurrency(total)}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('categoryCards').innerHTML = categoryCards;
+    }
+
+    function showDetails(category, total, subcategories) {
+      document.getElementById('modalTitle').textContent = `Detalles de ${category}`;
+      document.getElementById('modalTotal').textContent = formatCurrency(total);
+      const subcategoryList = Object.entries(subcategories).map(([subcategory, amount]) => {
+        const percentage = ((amount / total) * 100).toFixed(2);
+        return `<li class="text-sm flex justify-between"><span>${subcategory}:</span> <span>${formatCurrency(amount)} (${percentage}%)</span></li>`;
+      }).join('');
+      document.getElementById('modalSubcategories').innerHTML = subcategoryList;
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+
+    window.onclick = function (event) {
+      if (event.target == document.getElementById('modal')) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+
+</html>
