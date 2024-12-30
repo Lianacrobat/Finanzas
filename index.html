@@ -9,148 +9,56 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="transition-colors duration-500 bg-red-50">
+<body>
+  <!-- Contenedor principal -->
+  <div id="content-container">
+    <iframe id="content-frame" src="./components/registro.html"></iframe>
+  </div>
 
-  <div class="container mx-auto p-4">
-    <form id="transactionForm" class="space-y-4 bg-white p-4 rounded-lg shadow-md ">
-      <h2 class="font-bold text-center mb-6">Nuevo Registro:</h2>
+  <!-- Menú flotante -->
+  <div id="floating-menu" class="fixed bottom-6 right-6 z-50">
+    <div class="relative">
+      <button id="main-button"
+        class="w-14 h-14 bg-gray-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 focus:outline-none"
+        aria-label="Toggle menu" aria-expanded="false">
+        <i class="fa-solid fa-bars text-2xl transition-transform duration-300"></i>
+      </button>
+      <nav id="menu-options"
+        class="absolute bottom-16 right-0 bg-white rounded-lg shadow-xl py-2 w-48 opacity-0 invisible transition-all duration-300 transform translate-y-2">
 
-      <!-- Tipo de Transacción -->
-      <div class="flex gap-2 justify-center">
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="radio" name="type" value="Gasto" class="peer sr-only" checked onchange="updateCategories()">
-          <div
-            class="peer-checked:bg-red-500 peer-checked:text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
-            Gasto
-          </div>
-        </label>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="radio" name="type" value="Ingreso" class="peer sr-only" onchange="updateCategories()">
-          <div
-            class="peer-checked:bg-green-500 peer-checked:text-white px-4 py-2 rounded-md text-sm font-semibold transition-all">
-            Ingreso
-          </div>
-        </label>
-      </div>
-
-      <!-- Monto -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Monto</label>
-        <div class="relative">
-          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">¥</span>
-          <input type="number" name="amount" id="amountInput"
-            class="w-full pl-8 pr-28 py-2 text-base font-medium border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-            placeholder="0.00" required>
-          <div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
-            <button type="button" onclick="addAmount(-1)"
-              class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200">-</button>
-            <button type="button" onclick="addAmount(1)"
-              class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200">+</button>
-            <button type="button" onclick="clearAmount()"
-              class="w-6 h-6 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all font-medium">×</button>
-          </div>
+        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors flex items-center space-x-3"
+          onclick="loadSection('./components/registro.html')">
+          <i class="fas fa-dollar-sign text-gray-600"></i>
+          <span class="text-gray-700">Registro</span>
         </div>
-      </div>
 
-      <!-- Botones de Incremento -->
-      <div id="incrementButtons" class="grid grid-cols-4 gap-1 mt-3"></div>
+        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors flex items-center space-x-3"
+          onclick="loadSection('./components/resumenFinanciero.html')">
+          <i class="fas fa-chart-line text-gray-600"></i>
+          <span class="text-gray-700">Resumen</span>
+        </div>
 
-      <!-- Categorías -->
-      <div id="categorySection">
-        <label id="categoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Categorías +</label>
-        <div id="categoryContainer" class="flex overflow-x-auto gap-2 py-1"></div>
-      </div>
+        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors flex items-center space-x-3"
+          onclick="loadSection('plan.html')">
+          <i class="fas fa-lightbulb text-gray-600"></i>
+          <span class="text-gray-700">Plan</span>
+        </div>
 
-      <!-- Subcategorías -->
-      <div id="subcategorySection">
-        <label id="subcategoryLabel" class="block text-sm font-medium mb-1 cursor-pointer">Subcategorías +</label>
-        <div id="subcategoryContainer" class="flex overflow-x-auto gap-2 py-1"></div>
-      </div>
+        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors flex items-center space-x-3"
+          onclick="loadSection('coach.html')">
+          <i class="fas fa-bolt text-gray-600"></i>
+          <span class="text-gray-700">Coach</span>
+        </div>
 
-      <!-- Descripción -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Descripción</label>
-        <textarea name="description" placeholder="Descripción" id="descriptionInput" rows="2"
-          class="w-full px-2 py-1 text-sm border border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"></textarea>
-      </div>
+        <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors flex items-center space-x-3"
+          onclick="loadSection('ahorro.html')">
+          <i class="fas fa-layer-group text-gray-600"></i>
+          <span class="text-gray-700">Ahorro</span>
+        </div>
 
-      <!-- Persona -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Persona:</label>
-        <div id="personContainer" class="grid grid-cols-5 gap-1"></div>
-      </div>
-
-      <!-- Botón de Envío -->
-      <button id="submitButton" type="submit"
-        class="w-full py-2 text-white font-bold rounded-lg transition-all flex items-center justify-center bg-red-500 hover:bg-red-600">
-        Guardar Registro
-      </button>
-      <span id="errorMessage" class="hidden text-red-600 mt-1 text-sm">Error al guardar registro, inténtalo
-        nuevamente</span>
-    </form>
-  </div>
-
-  <!-- Modal para nueva categoría -->
-
-
-  <div id="categoryModal"
-  class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-50" role="dialog"
-  aria-modal="true">
-
-  <div class="relative bg-white w-11/12 md:w-96 p-6 rounded-lg shadow-xl">
-    <!-- Botón de cierre -->
-    <button onclick="closeModal('categoryModal')"
-      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none">
-      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-    <!-- Encabezado del modal -->
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Nueva Subcategoría</h3>
-    <!-- Campo de entrada -->
-    <div class="mb-4">
-      <input type="text" id="newSubcategoryInput"
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        placeholder="Ej. Transporte">
-    </div>
-    <!-- Botón de acción -->
-    <button onclick="addNewCategory()"
-      class="w-full py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-      Agregar
-    </button>
-  </div>
-</div>
-
-
-  <!-- Modal para nueva subcategoría -->
-  <div id="subcategoryModal"
-    class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-50" role="dialog"
-    aria-modal="true">
-
-    <div class="relative bg-white w-11/12 md:w-96 p-6 rounded-lg shadow-xl">
-      <!-- Botón de cierre -->
-      <button onclick="closeModal('subcategoryModal')"
-        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-      <!-- Encabezado del modal -->
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Nueva Subcategoría</h3>
-      <!-- Campo de entrada -->
-      <div class="mb-4">
-        <input type="text" id="newSubcategoryInput"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="Ej. Tren">
-      </div>
-      <!-- Botón de acción -->
-      <button onclick="addNewSubcategory()"
-        class="w-full py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        Agregar
-      </button>
+      </nav>
     </div>
   </div>
-
 
 
   <script>
@@ -162,292 +70,54 @@
       updateUIColors();
     });
 
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbz12ufB9cShH9VtMyt1h08kIBQIBlvFdM7Af0UrBy2guAJEyTAcmuVqLRHmPbL5LOR2/exec";
-    let subcategoryCounts = {};
-    let categoryData = {};
-
-    // Cargar datos desde Google Sheets
-    async function loadData() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo/values/Finanzas!A2:G?key=AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0`;
-      const categoryContainer = document.getElementById('categoryContainer');
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        const data = await response.json();
-
-        if (data.values) {
-          data.values.forEach(row => {
-            const [, type, category, subcategory] = row;
-            if (!categoryData[type]) categoryData[type] = {};
-            if (category) categoryData[type][category] = (categoryData[type][category] || 0) + 1;
-            if (subcategory) {
-              if (!subcategoryCounts[category]) subcategoryCounts[category] = {};
-              subcategoryCounts[category][subcategory] = (subcategoryCounts[category][subcategory] || 0) + 1;
-            }
-          });
-
-          updateCategories();
-        } else {
-          categoryContainer.innerHTML = '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        const errorMessage = document.getElementById('errorMessage');
-        errorMessage.textContent = 'No se pudieron cargar las categorías.';
-      }
+if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito:', registration);
+        })
+        .catch(error => {
+          console.log('Error al registrar el Service Worker:', error);
+        });
     }
-
-    // Añadir monto
-    function addAmount(value) {
-      const input = document.getElementById('amountInput');
-      input.value = (parseFloat(input.value) || 0) + value;
-    }
-
-    // Limpiar monto
-    function clearAmount() {
-      document.getElementById('amountInput').value = '';
-    }
-
-    // Actualizar categorías
-    function updateCategories() {
-      const selectedType = document.querySelector('input[name="type"]:checked').value;
-      const categories = categoryData[selectedType] ? Object.keys(categoryData[selectedType]) : [];
-      populateCategories(categories);
-      updateUIColors();
-    }
-
-    // Renderizar Categorías
-    function populateCategories(categories) {
-      const categoryContainer = document.getElementById('categoryContainer');
-      categoryContainer.innerHTML = categories.length
-        ? categories.map(cat => `
-                  <label class="relative cursor-pointer">
-                      <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
-                      <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs whitespace-nowrap">
-                          <div class="text-xs sm:text-sm font-medium">${cat}</div>
-                      </div>
-                  </label>
-              `).join('')
-        : '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
-    }
-
-    // Renderizar subcategorías
-    function populateSubcategories(category) {
-      const subcategoryContainer = document.getElementById('subcategoryContainer');
-      const subcategories = subcategoryCounts[category] ? Object.keys(subcategoryCounts[category]) : [];
-      const selectedType = document.querySelector('input[name="type"]:checked').value; // Obtener el tipo actual (Ingreso/Gasto)
-
-      // Clases dinámicas basadas en el tipo
-      const borderColorClass = selectedType === 'Ingreso' ? 'peer-checked:border-green-500' : 'peer-checked:border-red-500';
-      const bgColorClass = selectedType === 'Ingreso' ? 'peer-checked:bg-green-50' : 'peer-checked:bg-red-50';
-
-      subcategoryContainer.innerHTML = subcategories.length
-        ? subcategories.map(subcat => `
-        <label class="relative cursor-pointer">
-            <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md ${borderColorClass} ${bgColorClass} transition-all text-xs whitespace-nowrap">
-                <div class="text-xs sm:text-sm font-medium">${subcat}</div>
-            </div>
-        </label>
-      `).join('')
-        : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
-    }
-
-    // Enviar formulario a Google Sheets
-    async function submitForm(event) {
-      event.preventDefault();
-
-      const submitButton = document.getElementById('submitButton');
-      const errorMessage = document.getElementById('errorMessage');
-
-      // Crear el span para la cuenta regresiva
-      let countdownSpan = document.getElementById('countdownSpan');
-      if (!countdownSpan) {
-        countdownSpan = document.createElement('span');
-        countdownSpan.id = 'countdownSpan';
-        countdownSpan.className = 'block text-sm mt-2 text-gray-600 font-medium text-center';
-        submitButton.insertAdjacentElement('afterend', countdownSpan);
-      }
-
-      // Preparar el botón y mensajes
-      submitButton.disabled = true;
-      submitButton.textContent = 'Enviando datos...';
-      errorMessage.classList.add('hidden');
-      countdownSpan.textContent = ''; // Limpiar mensaje de cuenta regresiva
-
-      const formData = new FormData(event.target);
-      formData.append('dateTime', new Date().toISOString());
-
-      try {
-        const response = await fetch(scriptUrl, { method: 'POST', body: new URLSearchParams(formData) });
-        if (response.ok) {
-          submitButton.textContent = 'Datos recibidos';
-
-          // Mostrar cuenta regresiva
-          let countdown = 5;
-          const interval = setInterval(() => {
-            countdownSpan.textContent = `Esta app se recargará en: ${countdown}s`;
-            countdown--;
-            if (countdown < 0) {
-              clearInterval(interval);
-              location.reload();
-            }
-          }, 1000);
-        } else {
-          throw new Error('Error al guardar');
-        }
-      } catch (error) {
-        console.error("Error en la solicitud:", error);
-        errorMessage.textContent = 'Error de conexión VPN, intenta de nuevo';
-        errorMessage.classList.remove('hidden');
-        submitButton.textContent = 'Guardar Registro';
-      } finally {
-        setTimeout(() => {
-          submitButton.disabled = false;
-          if (submitButton.textContent !== 'Datos recibidos') {
-            submitButton.textContent = 'Guardar Registro';
-          }
-        }, 3000);
-      }
-    }
-    document.getElementById('transactionForm').addEventListener('submit', submitForm);
-
-    // Abrir modal
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    // Cerrar modal
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.add('hidden');
-    }
-
-    // Crear nueva categoría
-    document.getElementById('categoryLabel').addEventListener('click', () => {
-      openModal('categoryModal');
+    document.addEventListener('DOMContentLoaded', () => {
+      setupMenuToggle();
     });
 
-    // Crear nueva subcategoría
-    document.getElementById('subcategoryLabel').addEventListener('click', () => {
-      const selectedCategory = document.querySelector('input[name="category"]:checked');
-      if (!selectedCategory) {
-        alert('Por favor, seleccione una categoría primero.');
-        return;
-      }
-      openModal('subcategoryModal');
-    });
+    const mainButton = document.getElementById('main-button');
+    const menuOptions = document.getElementById('menu-options');
+    const iframe = document.getElementById('content-frame');
+    let isOpen = false;
 
-    // Añadir nueva categoría
-    function addNewCategory() {
-      const newCategory = document.getElementById('newCategoryInput').value;
-      if (newCategory) {
-        const categoryContainer = document.getElementById('categoryContainer');
-        categoryContainer.insertAdjacentHTML('afterbegin', `
-                  <label class="relative cursor-pointer">
-                      <input type="radio" name="category" value="${newCategory}" class="peer sr-only" onchange="populateSubcategories('${newCategory}')">
-                      <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs whitespace-nowrap">
-                          <div class="text-xs sm:text-sm font-medium">${newCategory}</div>
-                      </div>
-                  </label>
-              `);
-        closeModal('categoryModal');
-      }
-    }
-
-    // Añadir nueva subcategoría
-    function addNewSubcategory() {
-      const newSubcategory = document.getElementById('newSubcategoryInput').value;
-      const selectedCategory = document.querySelector('input[name="category"]:checked').value;
-      if (newSubcategory) {
-        const subcategoryContainer = document.getElementById('subcategoryContainer');
-        subcategoryContainer.insertAdjacentHTML('afterbegin', `
-                  <label class="relative cursor-pointer">
-                      <input type="radio" name="subcategory" value="${newSubcategory}" class="peer sr-only">
-                      <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs whitespace-nowrap">
-                          <div class="text-xs sm:text-sm font-medium">${newSubcategory}</div>
-                      </div>
-                  </label>
-              `);
-        closeModal('subcategoryModal');
-      }
-    }
-
-    // Renderizar botones de incremento
-    function renderIncrementButtons() {
-      const incrementValues = [1, 5, 10, 50, 100, 500, 1000, 10000];
-      const incrementButtonsContainer = document.getElementById('incrementButtons');
-      incrementButtonsContainer.innerHTML = incrementValues.map(value => `
-              <button type="button" onclick="addAmount(${value})" class="py-2 sm:px-6 border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-xs sm:text-sm font-medium">
-                  ${value}
-              </button>
-          `).join('');
-    }
-
-    // Renderizar opciones de personas
-    function renderPersonOptions() {
-      const persons = [
-        { value: 'Lían', emoji: '🐺' },
-        { value: 'Katya', emoji: '👩' },
-        { value: 'Alvik', emoji: '🧑‍🚀' },
-        { value: 'Familia', emoji: '👪' },
-        { value: 'Miaus', emoji: '🐈💩' }
-      ];
-      const personContainer = document.getElementById('personContainer');
-      personContainer.innerHTML = persons.map(person => `
-              <label class="relative cursor-pointer">
-                  <input type="radio" name="person" value="${person.value}" class="peer sr-only" ${person.value === 'Lían' ? 'checked' : ''}>
-                  <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs">
-                      <div class="text-lg sm:text-xl mb-1">${person.emoji}</div>
-                      <div class="text-xs sm:text-base font-medium whitespace-nowrap">${person.value}</div>
-                  </div>
-              </label>
-          `).join('');
-    }
-
-
-    // Actualizar colores de la interfaz
-    function updateUIColors() {
-      const selectedType = document.querySelector('input[name="type"]:checked').value;
-
-      // Actualizar el botón de envío
-      const submitButton = document.getElementById('submitButton');
-      if (selectedType === 'Ingreso') {
-        submitButton.classList.remove('bg-red-500', 'hover:bg-red-600');
-        submitButton.classList.add('bg-green-500', 'hover:bg-green-600');
-      } else {
-        submitButton.classList.remove('bg-green-500', 'hover:bg-green-600');
-        submitButton.classList.add('bg-red-500', 'hover:bg-red-600');
-      }
-
-      // Actualizar colores de botones de categoría, subcategoría y demás elementos
-      const allButtons = document.querySelectorAll(
-        '#categoryContainer label div, #subcategoryContainer label div, #personContainer label div, #incrementButtons button'
-      );
-      allButtons.forEach(button => {
-        if (selectedType === 'Ingreso') {
-          button.classList.remove('peer-checked:border-red-500', 'peer-checked:bg-red-50');
-          button.classList.add('peer-checked:border-green-500', 'peer-checked:bg-green-50');
-        } else {
-          button.classList.remove('peer-checked:border-green-500', 'peer-checked:bg-green-50');
-          button.classList.add('peer-checked:border-red-500', 'peer-checked:bg-red-50');
-        }
+    function setupMenuToggle() {
+      mainButton.addEventListener('click', () => {
+        isOpen = !isOpen;
+        menuOptions.classList.toggle('opacity-0');
+        menuOptions.classList.toggle('invisible');
+        menuOptions.classList.toggle('translate-y-2');
+        menuOptions.classList.toggle('opacity-100');
+        menuOptions.classList.toggle('visible');
+        menuOptions.classList.toggle('translate-y-0');
+        mainButton.querySelector('i').classList.toggle('rotate-45');
       });
 
-      // Actualizar el color de fondo del cuerpo
-      if (selectedType === 'Ingreso') {
-        document.body.classList.remove('bg-red-50');
-        document.body.classList.add('bg-green-50');
-      } else {
-        document.body.classList.remove('bg-green-50');
-        document.body.classList.add('bg-red-50');
-      }
+      document.addEventListener('click', (e) => {
+        if (!mainButton.contains(e.target) && !menuOptions.contains(e.target) && isOpen) {
+          isOpen = false;
+          menuOptions.classList.add('opacity-0', 'invisible', 'translate-y-2');
+          menuOptions.classList.remove('opacity-100', 'visible', 'translate-y-0');
+          mainButton.querySelector('i').classList.remove('rotate-45');
+        }
+      });
     }
 
-    // Vincular el evento de cambio de radio a la función combinada
-    document.querySelectorAll('input[name="type"]').forEach(radio => {
-      radio.addEventListener('change', updateUIColors);
-    });
+    function loadSection(url) {
+      iframe.src = url;
+
+      isOpen = false;
+      menuOptions.classList.add('opacity-0', 'invisible', 'translate-y-2');
+      menuOptions.classList.remove('opacity-100', 'visible', 'translate-y-0');
+      mainButton.querySelector('i').classList.remove('rotate-45');
+    }
   </script>
 </body>
 
