@@ -9,7 +9,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
-<body >
+<body>
 
   <div class="flex items-center justify-center min-h-screen">
     <form id="transactionForm" class="space-y-4 bg-white p-6 rounded-lg shadow-md w-full max-w-md">
@@ -31,8 +31,8 @@
       <label class="block text-sm font-medium mb-1">Monto</label>
       <div class="relative">
         <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-        <input type="number" name="amount" id="amountInput"
-      2   class="pl-8 pr-10 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        <input type="number" name="amount" id="amountInput" 2
+          class="pl-8 pr-10 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           placeholder="0.00" required>
         <button type="button" onclick="clearAmount()"
           class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-600">×</button>
@@ -74,6 +74,11 @@
     async function loadData() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo/values/Finanzas!A2:G?key=AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0`;
       const categoryContainer = document.getElementById('categoryContainer');
+      const subcategoryContainer = document.getElementById('subcategoryContainer');
+
+      // Mostrar "Cargando..." antes de cargar las categorías y subcategorías
+      categoryContainer.innerHTML = '<p class="text-sm text-gray-600 font-medium">Cargando...</p>';
+      subcategoryContainer.innerHTML = '<p class="text-sm text-gray-600 font-medium">Cargando...</p>';
 
       try {
         const response = await fetch(url);
@@ -94,11 +99,14 @@
           updateCategories();
         } else {
           categoryContainer.innerHTML = '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
+          subcategoryContainer.innerHTML = '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
         }
       } catch (error) {
         console.error('Error:', error);
         const errorMessage = document.getElementById('errorMessage');
         errorMessage.textContent = 'No se pudieron cargar las categorías.';
+        categoryContainer.innerHTML = '<p class="text-sm text-red-600 font-medium">Error al cargar las categorías.</p>';
+        subcategoryContainer.innerHTML = '<p class="text-sm text-red-600 font-medium">Error al cargar las subcategorías.</p>';
       }
     }
 
@@ -117,13 +125,13 @@
       const categoryContainer = document.getElementById('categoryContainer');
       categoryContainer.innerHTML = categories.length
         ? categories.map(cat => `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
-            <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${cat}</div>
-            </div>
-          </label>
-        `).join('')
+      <label class="relative cursor-pointer">
+        <input type="radio" name="category" value="${cat}" class="peer sr-only" onchange="populateSubcategories('${cat}')">
+        <div class="p-1 text-center border rounded-md peer-checked:border-red-500 peer-checked:bg-red-50 transition-all text-xs whitespace-nowrap">
+          <div class="text-xs sm:text-sm font-medium">${cat}</div>
+        </div>
+      </label>
+    `).join('')
         : '<p class="text-sm text-red-600 font-medium">No hay categorías disponibles.</p>';
     }
 
@@ -136,15 +144,16 @@
 
       subcategoryContainer.innerHTML = subcategories.length
         ? subcategories.map(subcat => `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
-            <div class="p-1 text-center border rounded-md ${borderColorClass} ${bgColorClass} transition-all text-xs whitespace-nowrap">
-              <div class="text-xs sm:text-sm font-medium">${subcat}</div>
-            </div>
-          </label>
-        `).join('')
+      <label class="relative cursor-pointer">
+        <input type="radio" name="subcategory" value="${subcat}" class="peer sr-only">
+        <div class="p-1 text-center border rounded-md ${borderColorClass} ${bgColorClass} transition-all text-xs whitespace-nowrap">
+          <div class="text-xs sm:text-sm font-medium">${subcat}</div>
+        </div>
+      </label>
+    `).join('')
         : '<p class="text-sm text-red-600 font-medium">No hay subcategorías disponibles.</p>';
     }
+
 
     async function submitForm(event) {
       event.preventDefault();
