@@ -9,7 +9,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class=" transition-colors duration-500 bg-red-50">
+<body class="transition-colors duration-500 bg-red-50">
 
   <div class="container mx-auto p-4">
     <form id="transactionForm" class="space-y-4 bg-white p-4 rounded-lg shadow-md ">
@@ -89,6 +89,69 @@
         nuevamente</span>
     </form>
   </div>
+
+  <!-- Modal para nueva categoría -->
+
+
+  <div id="categoryModal"
+  class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-50" role="dialog"
+  aria-modal="true">
+
+  <div class="relative bg-white w-11/12 md:w-96 p-6 rounded-lg shadow-xl">
+    <!-- Botón de cierre -->
+    <button onclick="closeModal('categoryModal')"
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <!-- Encabezado del modal -->
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Nueva Subcategoría</h3>
+    <!-- Campo de entrada -->
+    <div class="mb-4">
+      <input type="text" id="newSubcategoryInput"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        placeholder="Ej. Transporte">
+    </div>
+    <!-- Botón de acción -->
+    <button onclick="addNewCategory()"
+      class="w-full py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+      Agregar
+    </button>
+  </div>
+</div>
+
+
+  <!-- Modal para nueva subcategoría -->
+  <div id="subcategoryModal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden flex items-center justify-center z-50" role="dialog"
+    aria-modal="true">
+
+    <div class="relative bg-white w-11/12 md:w-96 p-6 rounded-lg shadow-xl">
+      <!-- Botón de cierre -->
+      <button onclick="closeModal('subcategoryModal')"
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <!-- Encabezado del modal -->
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Nueva Subcategoría</h3>
+      <!-- Campo de entrada -->
+      <div class="mb-4">
+        <input type="text" id="newSubcategoryInput"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          placeholder="Ej. Tren">
+      </div>
+      <!-- Botón de acción -->
+      <button onclick="addNewSubcategory()"
+        class="w-full py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Agregar
+      </button>
+    </div>
+  </div>
+
+
 
   <script>
 
@@ -250,10 +313,34 @@
     }
     document.getElementById('transactionForm').addEventListener('submit', submitForm);
 
+    // Abrir modal
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    // Cerrar modal
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
 
     // Crear nueva categoría
     document.getElementById('categoryLabel').addEventListener('click', () => {
-      const newCategory = prompt('Ingrese el nombre de la nueva categoría:');
+      openModal('categoryModal');
+    });
+
+    // Crear nueva subcategoría
+    document.getElementById('subcategoryLabel').addEventListener('click', () => {
+      const selectedCategory = document.querySelector('input[name="category"]:checked');
+      if (!selectedCategory) {
+        alert('Por favor, seleccione una categoría primero.');
+        return;
+      }
+      openModal('subcategoryModal');
+    });
+
+    // Añadir nueva categoría
+    function addNewCategory() {
+      const newCategory = document.getElementById('newCategoryInput').value;
       if (newCategory) {
         const categoryContainer = document.getElementById('categoryContainer');
         categoryContainer.insertAdjacentHTML('afterbegin', `
@@ -264,17 +351,14 @@
                       </div>
                   </label>
               `);
+        closeModal('categoryModal');
       }
-    });
+    }
 
-    // Crear nueva subcategoría
-    document.getElementById('subcategoryLabel').addEventListener('click', () => {
-      const selectedCategory = document.querySelector('input[name="category"]:checked');
-      if (!selectedCategory) {
-        alert('Por favor, seleccione una categoría primero.');
-        return;
-      }
-      const newSubcategory = prompt('Ingrese el nombre de la nueva subcategoría:');
+    // Añadir nueva subcategoría
+    function addNewSubcategory() {
+      const newSubcategory = document.getElementById('newSubcategoryInput').value;
+      const selectedCategory = document.querySelector('input[name="category"]:checked').value;
       if (newSubcategory) {
         const subcategoryContainer = document.getElementById('subcategoryContainer');
         subcategoryContainer.insertAdjacentHTML('afterbegin', `
@@ -285,8 +369,9 @@
                       </div>
                   </label>
               `);
+        closeModal('subcategoryModal');
       }
-    });
+    }
 
     // Renderizar botones de incremento
     function renderIncrementButtons() {
@@ -319,6 +404,7 @@
               </label>
           `).join('');
     }
+
 
     // Actualizar colores de la interfaz
     function updateUIColors() {
