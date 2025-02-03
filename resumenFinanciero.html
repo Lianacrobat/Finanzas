@@ -1,429 +1,362 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resumen Financiero General y por Mes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      /* Estilos para los encabezados ordenables */
-      .sortable:hover {
-        cursor: pointer;
-        color: #2563eb;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumen Financiero General y por Mes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .sortable:hover {
+      cursor: pointer;
+      color: #2563eb;
+    }
+
+    .sort-asc::after {
+      content: " ▲";
+    }
+
+    .sort-desc::after {
+      content: " ▼";
+    }
+
+    .toggle-btn {
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+
+      table th,
+      table td {
+        padding: 0.25rem;
+        font-size: 0.75rem;
       }
-      .sort-asc::after {
-        content: " ▲";
-      }
-      .sort-desc::after {
-        content: " ▼";
-      }
-      /* Estilos para el botón de desplegar subcategorías */
-      .toggle-btn {
-        cursor: pointer;
-      }
-      /* Estilos para la tabla en móviles */
-      @media (max-width: 640px) {
-        table th,
-        table td {
-          padding: 0.5rem;
-          font-size: 0.875rem;
-        }
-      }
-      /* Estilos para el acordeón de meses */
-      .month-header {
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 p-4">
-    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow">
-      <h1 class="text-2xl font-bold mb-6 text-center">Resumen Financiero</h1>
-      
-      <!-- Resumen General -->
-      <section id="generalSummary" class="mb-8 hidden">
-        <h2 class="text-1xl font-bold mb-4">Resumen General</h2>
-        <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
-          <div class="bg-green-100 p-4 rounded text-center">
-            <h3 class="font-semibold text-green-700">Ingresos</h3>
-            <p id="globalIncome" class="text-1xl font-bold">$0</p>
-          </div>
-          <div class="bg-red-100 p-4 rounded text-center">
-            <h3 class="font-semibold text-red-700">Gastos</h3>
-            <p id="globalExpense" class="text-1xl font-bold">$0</p>
-          </div>
-          <div class="bg-blue-100 p-4 rounded text-center">
-            <h3 class="font-semibold text-blue-700">Balance</h3>
-            <p id="globalBalance" class="text-1xl font-bold">$0</p>
-          </div>
+    }
+
+    table th,
+    table td {
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .month-header {
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 p-4">
+  <div class="max-w-6xl mx-auto bg-white p-4 sm:p-6 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6 text-center">Resumen Financiero</h1>
+    <section id="generalSummary" class="mb-8 hidden">
+      <h2 class="text-base font-bold mb-4">Resumen General</h2>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-green-100 p-2 rounded text-center">
+          <p id="globalIncome" class="text-base font-bold text-green-600">$0</p>
         </div>
-      </section>
-      
-      <!-- Secciones Mensuales (Acordeón) -->
-      <div id="monthSections">
-        <!-- Se generarán secciones por cada mes -->
+        <div class="bg-red-100 p-2 rounded text-center">
+          <p id="globalExpense" class="text-base font-bold text-red-600">$0</p>
+        </div>
+        <div class="bg-blue-100 p-2 rounded text-center">
+          <p id="globalBalance" class="text-base font-bold text-blue-600">$0</p>
+        </div>
       </div>
-      
-      <div id="loading" class="text-center text-gray-600">Cargando datos...</div>
-    </div>
+    </section>
+    <div id="monthSections"></div>
+    <div id="loading" class="text-center text-gray-600">Cargando datos...</div>
+  </div>
 
-    <script>
-      // Configuración: Reemplaza estos valores por los tuyos
-      const spreadsheetId = "1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo";
-      const range = "Finanzas!A2:G"; // Encabezados en la fila 1
-      const apiKey = "AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0";
-      const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
+  <script>
+    const spreadsheetId = "1zie5dgzPmCqyxmCsSk85sRx2zpuiLZfo-aOLA8kbVwo";
+    const range = "Finanzas!A2:G";
+    const apiKey = "AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0";
+    const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
 
-      // Función para formatear números como moneda sin decimales
-      function formatCurrency(value) {
-        return "$" + Number(value).toLocaleString("es-ES", { maximumFractionDigits: 0 });
-      }
+    function formatCurrency(value) {
+      return "$" + Number(value).toLocaleString("es-ES", { maximumFractionDigits: 0 });
+    }
 
-      // Función para obtener el nombre del mes y año a partir de un objeto Date
-      function getMonthYearString(dateObj) {
-        const monthNames = [
-          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        return `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-      }
+    function getMonthYearString(dateObj) {
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      return `${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+    }
 
-      // Estructura para agrupar datos mensuales
-      let monthlyData = {};
+    let monthlyData = {};
 
-      // Función para procesar y agrupar los datos por mes y calcular totales generales
-      async function loadFinancialData() {
-        try {
-          const response = await fetch(sheetUrl);
-          if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-          const data = await response.json();
-          
-          if (!data.values || data.values.length === 0) {
-            document.getElementById("loading").textContent = "No se encontraron datos.";
-            return;
-          }
-          
-          // Variables para totales generales
-          let globalIncome = 0;
-          let globalExpense = 0;
-          
-          // Recorrer cada fila
-          data.values.forEach(row => {
-            // Columnas: 0: dateTime, 1: type, 2: category, 3: subcategory, 4: description, 5: amount, 6: person
-            const dateTimeStr = row[0];
-            if (!dateTimeStr) return;
-            const dateObj = new Date(dateTimeStr);
-            // Clave para agrupar: "YYYY-MM"
-            const monthKey = `${dateObj.getFullYear()}-${("0" + (dateObj.getMonth()+1)).slice(-2)}`;
-            if (!monthlyData[monthKey]) {
-              monthlyData[monthKey] = {
-                monthDate: dateObj,
-                totalIncome: 0,
-                totalExpense: 0,
-                categories: {},  // Por categoría: { income, expense }
-                subcategories: {} // Por categoría: { subcategory: { income, expense } }
-              };
-            }
-            const type = (row[1] || "").toLowerCase();
-            const category = row[2] || "Sin Categoría";
-            const subcategory = row[3] || "Sin Subcategoría";
-            const amount = parseFloat(row[5]) || 0;
-            if (type === "ingreso") {
-              monthlyData[monthKey].totalIncome += amount;
-              globalIncome += amount;
-              if (!monthlyData[monthKey].categories[category]) {
-                monthlyData[monthKey].categories[category] = { income: 0, expense: 0 };
-              }
-              monthlyData[monthKey].categories[category].income += amount;
-            } else if (type === "gasto") {
-              monthlyData[monthKey].totalExpense += amount;
-              globalExpense += amount;
-              if (!monthlyData[monthKey].categories[category]) {
-                monthlyData[monthKey].categories[category] = { income: 0, expense: 0 };
-              }
-              monthlyData[monthKey].categories[category].expense += amount;
-            }
-            // Subcategorías
-            if (!monthlyData[monthKey].subcategories[category]) {
-              monthlyData[monthKey].subcategories[category] = {};
-            }
-            if (!monthlyData[monthKey].subcategories[category][subcategory]) {
-              monthlyData[monthKey].subcategories[category][subcategory] = { income: 0, expense: 0 };
-            }
-            if (type === "ingreso") {
-              monthlyData[monthKey].subcategories[category][subcategory].income += amount;
-            } else if (type === "gasto") {
-              monthlyData[monthKey].subcategories[category][subcategory].expense += amount;
-            }
-          });
-          
-          // Actualizar resumen general
-          const globalBalance = globalIncome - globalExpense;
-          document.getElementById("globalIncome").textContent = formatCurrency(globalIncome);
-          document.getElementById("globalExpense").textContent = formatCurrency(globalExpense);
-          document.getElementById("globalBalance").textContent = formatCurrency(globalBalance);
-          document.getElementById("generalSummary").classList.remove("hidden");
-          
-          renderMonthlySections();
-        } catch (error) {
-          console.error("Error cargando datos:", error);
-          document.getElementById("loading").textContent = "Error al cargar los datos.";
+    async function loadFinancialData() {
+      try {
+        const response = await fetch(sheetUrl);
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        const data = await response.json();
+
+        if (!data.values || data.values.length === 0) {
+          document.getElementById("loading").textContent = "No se encontraron datos.";
+          return;
         }
+
+        let globalIncome = 0;
+        let globalExpense = 0;
+
+        data.values.forEach(row => {
+          const dateTimeStr = row[0];
+          if (!dateTimeStr) return;
+          const dateObj = new Date(dateTimeStr);
+          const monthKey = `${dateObj.getFullYear()}-${("0" + (dateObj.getMonth() + 1)).slice(-2)}`;
+          if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = { monthDate: dateObj, totalIncome: 0, totalExpense: 0, categories: {}, subcategories: {} };
+          }
+          const type = (row[1] || "").toLowerCase();
+          const category = row[2] || "Sin Categoría";
+          const subcategory = row[3] || "Sin Subcategoría";
+          const amount = parseFloat(row[5]) || 0;
+          if (type === "ingreso") {
+            monthlyData[monthKey].totalIncome += amount;
+            globalIncome += amount;
+            if (!monthlyData[monthKey].categories[category]) {
+              monthlyData[monthKey].categories[category] = { income: 0, expense: 0 };
+            }
+            monthlyData[monthKey].categories[category].income += amount;
+          } else if (type === "gasto") {
+            monthlyData[monthKey].totalExpense += amount;
+            globalExpense += amount;
+            if (!monthlyData[monthKey].categories[category]) {
+              monthlyData[monthKey].categories[category] = { income: 0, expense: 0 };
+            }
+            monthlyData[monthKey].categories[category].expense += amount;
+          }
+          if (!monthlyData[monthKey].subcategories[category]) {
+            monthlyData[monthKey].subcategories[category] = {};
+          }
+          if (!monthlyData[monthKey].subcategories[category][subcategory]) {
+            monthlyData[monthKey].subcategories[category][subcategory] = { income: 0, expense: 0 };
+          }
+          if (type === "ingreso") {
+            monthlyData[monthKey].subcategories[category][subcategory].income += amount;
+          } else if (type === "gasto") {
+            monthlyData[monthKey].subcategories[category][subcategory].expense += amount;
+          }
+        });
+
+        const globalBalance = globalIncome - globalExpense;
+        document.getElementById("globalIncome").textContent = formatCurrency(globalIncome);
+        document.getElementById("globalExpense").textContent = formatCurrency(globalExpense);
+        document.getElementById("globalBalance").textContent = formatCurrency(globalBalance);
+        document.getElementById("generalSummary").classList.remove("hidden");
+
+        renderMonthlySections();
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+        document.getElementById("loading").textContent = "Error al cargar los datos.";
       }
+    }
 
-      // Función para renderizar cada sección mensual en formato acordeón
-      function renderMonthlySections() {
-        const monthSectionsContainer = document.getElementById("monthSections");
-        monthSectionsContainer.innerHTML = "";
+    function createElement(tag, classNames, innerHTML = "") {
+      const element = document.createElement(tag);
+      if (classNames) element.className = classNames;
+      if (innerHTML) element.innerHTML = innerHTML;
+      return element;
+    }
 
-        // Ordenar las claves de mes de forma descendente (los meses más recientes primero)
-        const sortedMonths = Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
-        
-        sortedMonths.forEach((monthKey, index) => {
-          const monthObj = monthlyData[monthKey];
-          const monthSection = document.createElement("section");
-          monthSection.classList.add("mb-4", "border", "rounded");
-          
-          // Encabezado del mes (clickable para expandir/contraer)
-          const monthHeader = document.createElement("div");
-          monthHeader.classList.add(
-            "month-header",
-            "bg-gray-200",
-            "p-4",
-            "flex",
-            "justify-between",
-            "items-center",
-            "rounded-t"
-          );
-          const monthTitle = getMonthYearString(monthObj.monthDate);
-          monthHeader.innerHTML = `
-            <span class="font-bold text-lg">${monthTitle}</span>
+    function renderMonthlySections() {
+      const monthSectionsContainer = document.getElementById("monthSections");
+      monthSectionsContainer.innerHTML = "";
+
+      const sortedMonths = Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
+
+      sortedMonths.forEach(monthKey => {
+        const monthObj = monthlyData[monthKey];
+        const monthSection = createElement("section", "mb-4 border rounded");
+        const monthTitle = getMonthYearString(monthObj.monthDate);
+        const netBalance = monthObj.totalIncome - monthObj.totalExpense;
+        const monthHeader = createElement("div", "month-header bg-gray-100 p-2 flex justify-between items-center rounded-t", `
+            <div>
+              <span class="font-bold text-1-l">${monthTitle}</span>
+              <span class="ml-2">
+                <span class="text-green-600 font-bold">${formatCurrency(monthObj.totalIncome)}</span>
+                <span class="ml-2 text-red-600 font-bold">${formatCurrency(monthObj.totalExpense)}</span>
+                <span class="ml-2 text-blue-600 font-bold">${formatCurrency(netBalance)}</span>
+              </span>
+            </div>
             <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
             </svg>
-          `;
-          // Contenedor del contenido (tabla) del mes, inicialmente oculto salvo el primero
-          const monthContent = document.createElement("div");
-          monthContent.classList.add("p-4", "border-t");
-          // Mostrar el contenido del primer mes y ocultar los demás
-          if (index === 0) {
-            monthContent.style.display = "block";
-          } else {
-            monthContent.style.display = "none";
-          }
-          
-          // Agregar evento para que al presionar el encabezado se expanda y se contraigan los demás
-          monthHeader.addEventListener("click", () => {
-            // Contraer todas las secciones
-            document.querySelectorAll("#monthSections .month-content").forEach(content => {
-              content.style.display = "none";
-              // Rotar icono hacia abajo
-              content.parentNode.querySelector("svg").classList.remove("rotate-180");
-            });
-            // Expandir la sección actual
-            monthContent.style.display = "block";
-            // Rotar el icono en la sección actual
-            monthHeader.querySelector("svg").classList.add("rotate-180");
-          });
-          
-          monthSection.appendChild(monthHeader);
-          monthContent.classList.add("month-content");
-          
-          // Resumen global del mes (tarjetas)
-          const netBalance = monthObj.totalIncome - monthObj.totalExpense;
-          const summaryDiv = document.createElement("div");
-          summaryDiv.classList.add("grid", "grid-cols-3", "gap-4", "mb-4");
-          summaryDiv.innerHTML = `
-            <div class="bg-green-100 p-4 rounded text-center">
-              <h3 class="font-semibold text-green-700">Ingresos</h3>
-              <p class="text-lg font-bold">${formatCurrency(monthObj.totalIncome)}</p>
+          `);
+        const monthContent = createElement("div", "month-content p-4 border-t");
+        monthContent.style.display = "none";
+
+        monthHeader.addEventListener("click", () => {
+          monthContent.style.display = monthContent.style.display === "none" ? "block" : "none";
+          monthHeader.querySelector("svg").classList.toggle("rotate-180");
+        });
+
+        monthSection.appendChild(monthHeader);
+        monthSection.appendChild(monthContent);
+        monthSectionsContainer.appendChild(monthSection);
+
+        const summaryDiv = createElement("div", "grid grid-cols-3 gap-4 mb-4 sm:hidden", `
+            <div class="bg-green-100 p-2 rounded text-center">
+              <p class="text-base font-bold text-green-600">${formatCurrency(monthObj.totalIncome)}</p>
             </div>
-            <div class="bg-red-100 p-4 rounded text-center">
-              <h3 class="font-semibold text-red-700">Gastos</h3>
-              <p class="text-lg font-bold">${formatCurrency(monthObj.totalExpense)}</p>
+            <div class="bg-red-100 p-2 rounded text-center">
+              <p class="text-base font-bold text-red-600">${formatCurrency(monthObj.totalExpense)}</p>
             </div>
-            <div class="bg-blue-100 p-4 rounded text-center">
-              <h3 class="font-semibold text-blue-700">Balance</h3>
-              <p class="text-lg font-bold">${formatCurrency(netBalance)}</p>
+            <div class="bg-blue-100 p-2 rounded text-center">
+              <p class="text-base font-bold text-blue-600">${formatCurrency(netBalance)}</p>
             </div>
-          `;
-          monthContent.appendChild(summaryDiv);
-          
-          // Tabla de resumen por categoría para este mes (con scroll horizontal)
-          const tableContainer = document.createElement("div");
-          tableContainer.classList.add("overflow-x-auto", "mb-4");
-          const table = document.createElement("table");
-          table.classList.add("min-w-full", "divide-y", "divide-gray-200");
-          
-          // Encabezado de la tabla
-          table.innerHTML = `
+          `);
+        summaryDiv.style.display = "none";
+        monthContent.appendChild(summaryDiv);
+
+        const tableContainer = createElement("div", "overflow-x-auto mb-4");
+        const table = createElement("table", "min-w-full divide-y divide-gray-200", `
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 sortable" data-column="category">Categoría</th>
-                <th class="px-4 py-2 text-right text-sm font-medium text-gray-600 sortable" data-column="income">Ingresos</th>
-                <th class="px-4 py-2 text-right text-sm font-medium text-gray-600 sortable" data-column="expense">Gastos</th>
-                <th class="px-4 py-2 text-right text-sm font-medium text-gray-600 sortable" data-column="balance">Balance</th>
+                <th class="px-2 py-1 text-left text-xs font-medium text-gray-600 sortable" data-column="category">Categoría</th>
+                <th class="px-2 py-1 text-right text-xs font-medium text-gray-600 sortable" data-column="income">Ingresos</th>
+                <th class="px-2 py-1 text-right text-xs font-medium text-gray-600 sortable" data-column="expense">Gastos</th>
+                <th class="px-2 py-1 text-right text-xs font-medium text-gray-600 sortable" data-column="balance">Balance</th>
               </tr>
             </thead>
-          `;
-          // Cuerpo de la tabla
-          const tbody = document.createElement("tbody");
-          tbody.classList.add("bg-white", "divide-y", "divide-gray-200");
-          
-          // Crear un array para resumir las categorías de este mes
-          let catArray = [];
-          for (const cat in monthObj.categories) {
-            const income = monthObj.categories[cat].income;
-            const expense = monthObj.categories[cat].expense;
-            const balance = income - expense;
-            catArray.push({ category: cat, income, expense, balance });
-          }
-          // Ordenar por defecto la columna "expense" de mayor a menor
-          catArray.sort((a, b) => b.expense - a.expense);
-          
-          // Datos de subcategorías para este mes
-          const subcatData = monthObj.subcategories;
-          
-          // Crear filas de categoría y asignar funcionalidad para desplegar subcategorías
-          catArray.forEach(item => {
-            const tr = document.createElement("tr");
-            tr.classList.add("group");
-            tr.innerHTML = `
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700 flex items-center">
-                <span class="toggle-btn mr-2 text-xl">+</span> ${item.category}
+          `);
+        const tbody = createElement("tbody", "bg-white divide-y divide-gray-200");
+
+        let catArray = [];
+        for (const cat in monthObj.categories) {
+          const income = monthObj.categories[cat].income;
+          const expense = monthObj.categories[cat].expense;
+          const balance = income - expense;
+          catArray.push({ category: cat, income, expense, balance });
+        }
+        catArray.sort((a, b) => b.expense - a.expense);
+
+        const subcatData = monthObj.subcategories;
+
+        catArray.forEach(item => {
+          const tr = createElement("tr", "group", `
+              <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-700 flex items-center">
+                <span class="toggle-btn mr-1 text-base">+</span> ${item.category}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-green-600 text-right">${formatCurrency(item.income)}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-red-600 text-right">${formatCurrency(item.expense)}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-blue-600 text-right">${formatCurrency(item.balance)}</td>
-            `;
-            tr.addEventListener("click", function () {
-              toggleSubcategoriesRow(item.category, tr, subcatData);
-            });
-            tbody.appendChild(tr);
+              <td class="px-2 py-1 whitespace-nowrap text-xs text-green-600 text-right">${formatCurrency(item.income)}</td>
+              <td class="px-2 py-1 whitespace-nowrap text-xs text-red-600 text-right">${formatCurrency(item.expense)}</td>
+              <td class="px-2 py-1 whitespace-nowrap text-xs text-blue-600 text-right">${formatCurrency(item.balance)}</td>
+            `);
+          tr.addEventListener("click", function () {
+            toggleSubcategoriesRow(item.category, tr, subcatData);
           });
-          
-          table.appendChild(tbody);
-          tableContainer.appendChild(table);
-          monthContent.appendChild(tableContainer);
-          monthSection.appendChild(monthContent);
-          monthSectionsContainer.appendChild(monthSection);
+          tbody.appendChild(tr);
         });
-        
-        // Agregar eventos de ordenación para cada tabla mensual
-        document.querySelectorAll("#monthSections table th.sortable").forEach(th => {
-          th.addEventListener("click", () => {
-            const table = th.closest("table");
-            sortMonthlyTable(table, th.dataset.column);
-          });
-        });
-      }
 
-      // Función para alternar fila de subcategorías dentro de una tabla mensual
-      function toggleSubcategoriesRow(category, categoryRow, subcatData) {
-        const nextRow = categoryRow.nextElementSibling;
-        if (nextRow && nextRow.classList.contains("subcat-row")) {
-          nextRow.remove();
-          categoryRow.querySelector(".toggle-btn").textContent = "+";
-        } else {
-          const subcatRow = document.createElement("tr");
-          subcatRow.classList.add("subcat-row", "bg-gray-50");
-          const td = document.createElement("td");
-          td.colSpan = 4;
-          const subcatTable = document.createElement("table");
-          subcatTable.classList.add("min-w-full", "text-xs");
-          subcatTable.innerHTML = `
-            <thead>
-              <tr class="border-b">
-                <th class="px-2 py-1 text-left">Subcategoría</th>
-                <th class="px-2 py-1 text-right">Ingresos</th>
-                <th class="px-2 py-1 text-right">Gastos</th>
-                <th class="px-2 py-1 text-right">Balance</th>
-              </tr>
-            </thead>
-            <tbody id="subcat-${category.replace(/\s+/g, "-")}">
-            </tbody>
-          `;
-          td.appendChild(subcatTable);
-          subcatRow.appendChild(td);
-          categoryRow.parentNode.insertBefore(subcatRow, categoryRow.nextSibling);
-          const tbody = document.getElementById(`subcat-${category.replace(/\s+/g, "-")}`);
-          if (subcatData[category]) {
-            let subcatArray = Object.entries(subcatData[category]).map(([subcat, data]) => {
-              return { subcategory: subcat, income: data.income, expense: data.expense, balance: data.income - data.expense };
-            });
-            subcatArray.sort((a, b) => b.expense - a.expense);
-            subcatArray.forEach(item => {
-              const subTr = document.createElement("tr");
-              subTr.innerHTML = `
-                <td class="px-2 py-1">${item.subcategory}</td>
-                <td class="px-2 py-1 text-right text-green-600">${formatCurrency(item.income)}</td>
-                <td class="px-2 py-1 text-right text-red-600">${formatCurrency(item.expense)}</td>
-                <td class="px-2 py-1 text-right text-blue-600">${formatCurrency(item.balance)}</td>
-              `;
-              tbody.appendChild(subTr);
-            });
-          } else {
-            const subTr = document.createElement("tr");
-            subTr.innerHTML = `<td class="px-2 py-1" colspan="4">No hay subcategorías</td>`;
-            tbody.appendChild(subTr);
-          }
-          categoryRow.querySelector(".toggle-btn").textContent = "-";
-        }
-      }
-
-      // Función para ordenar la tabla de un mes según la columna seleccionada
-      function sortMonthlyTable(table, column) {
-        const tbody = table.querySelector("tbody");
-        // Extraer filas de categoría (sin filas de subcategorías)
-        let rows = Array.from(tbody.querySelectorAll("tr")).filter(tr => !tr.classList.contains("subcat-row"));
-        const currentSortColumn = table.getAttribute("data-sort-column");
-        let currentSortOrder = table.getAttribute("data-sort-order") || "asc";
-        if (currentSortColumn === column) {
-          currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
-        } else {
-          currentSortOrder = "asc";
-        }
-        table.setAttribute("data-sort-column", column);
-        table.setAttribute("data-sort-order", currentSortOrder);
-        
-        rows.sort((trA, trB) => {
-          const cellsA = trA.querySelectorAll("td");
-          const cellsB = trB.querySelectorAll("td");
-          let valueA, valueB;
-          if (column === "category") {
-            valueA = cellsA[0].innerText.trim().toLowerCase();
-            valueB = cellsB[0].innerText.trim().toLowerCase();
-            if (valueA < valueB) return currentSortOrder === "asc" ? -1 : 1;
-            if (valueA > valueB) return currentSortOrder === "asc" ? 1 : -1;
-            return 0;
-          } else if (column === "income") {
-            valueA = parseFloat(cellsA[1].innerText.replace(/[^0-9.-]+/g, ""));
-            valueB = parseFloat(cellsB[1].innerText.replace(/[^0-9.-]+/g, ""));
-          } else if (column === "expense") {
-            valueA = parseFloat(cellsA[2].innerText.replace(/[^0-9.-]+/g, ""));
-            valueB = parseFloat(cellsB[2].innerText.replace(/[^0-9.-]+/g, ""));
-          } else if (column === "balance") {
-            valueA = parseFloat(cellsA[3].innerText.replace(/[^0-9.-]+/g, ""));
-            valueB = parseFloat(cellsB[3].innerText.replace(/[^0-9.-]+/g, ""));
-          }
-          return currentSortOrder === "asc" ? valueA - valueB : valueB - valueA;
-        });
-        
-        // Reinsertar filas ordenadas manteniendo las filas de subcategorías asociadas
-        while (tbody.firstChild) {
-          tbody.removeChild(tbody.firstChild);
-        }
-        rows.forEach(row => {
-          tbody.appendChild(row);
-          const next = row.nextElementSibling;
-          if (next && next.classList.contains("subcat-row")) {
-            tbody.appendChild(next);
-          }
-        });
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        loadFinancialData();
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
+        monthContent.appendChild(tableContainer);
       });
-    </script>
-  </body>
+
+      document.querySelectorAll("#monthSections table th.sortable").forEach(th => {
+        th.addEventListener("click", () => {
+          const table = th.closest("table");
+          sortMonthlyTable(table, th.dataset.column);
+        });
+      });
+    }
+
+    function toggleSubcategoriesRow(category, categoryRow, subcatData) {
+      const nextRow = categoryRow.nextElementSibling;
+      if (nextRow && nextRow.classList.contains("subcat-row")) {
+        nextRow.remove();
+        categoryRow.querySelector(".toggle-btn").textContent = "+";
+      } else {
+        const subcatRow = createElement("tr", "subcat-row bg-gray-50");
+        const td = createElement("td", "", `
+            <table class="min-w-full text-xs">
+              <thead>
+                <tr class="border-b">
+                  <th class="px-1 py-1 text-left">Subcategoría</th>
+                  <th class="px-1 py-1 text-right">Ingresos</th>
+                  <th class="px-1 py-1 text-right">Gastos</th>
+                  <th class="px-1 py-1 text-right">Balance</th>
+                </tr>
+              </thead>
+              <tbody id="subcat-${category.replace(/\s+/g, "-")}"></tbody>
+            </table>
+          `);
+        td.colSpan = 4;
+        subcatRow.appendChild(td);
+        categoryRow.parentNode.insertBefore(subcatRow, categoryRow.nextSibling);
+        const tbody = document.getElementById(`subcat-${category.replace(/\s+/g, "-")}`);
+        if (subcatData[category]) {
+          let subcatArray = Object.entries(subcatData[category]).map(([subcat, data]) => {
+            return { subcategory: subcat, income: data.income, expense: data.expense, balance: data.income - data.expense };
+          });
+          subcatArray.sort((a, b) => b.expense - a.expense);
+          subcatArray.forEach(item => {
+            const subTr = createElement("tr", "", `
+                <td class="px-1 py-1">${item.subcategory}</td>
+                <td class="px-1 py-1 text-right text-green-600">${formatCurrency(item.income)}</td>
+                <td class="px-1 py-1 text-right text-red-600">${formatCurrency(item.expense)}</td>
+                <td class="px-1 py-1 text-right text-blue-600">${formatCurrency(item.balance)}</td>
+              `);
+            tbody.appendChild(subTr);
+          });
+        } else {
+          const subTr = createElement("tr", "", `<td class="px-1 py-1" colspan="4">No hay subcategorías</td>`);
+          tbody.appendChild(subTr);
+        }
+        categoryRow.querySelector(".toggle-btn").textContent = "-";
+      }
+    }
+
+    function sortMonthlyTable(table, column) {
+      const tbody = table.querySelector("tbody");
+      let rows = Array.from(tbody.querySelectorAll("tr")).filter(tr => !tr.classList.contains("subcat-row"));
+      const currentSortColumn = table.getAttribute("data-sort-column");
+      let currentSortOrder = table.getAttribute("data-sort-order") || "asc";
+      if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+      } else {
+        currentSortOrder = "asc";
+      }
+      table.setAttribute("data-sort-column", column);
+      table.setAttribute("data-sort-order", currentSortOrder);
+
+      rows.sort((trA, trB) => {
+        const cellsA = trA.querySelectorAll("td");
+        const cellsB = trB.querySelectorAll("td");
+        let valueA, valueB;
+        if (column === "category") {
+          valueA = cellsA[0].innerText.trim().toLowerCase();
+          valueB = cellsB[0].innerText.trim().toLowerCase();
+          if (valueA < valueB) return currentSortOrder === "asc" ? -1 : 1;
+          if (valueA > valueB) return currentSortOrder === "asc" ? 1 : -1;
+          return 0;
+        } else if (column === "income") {
+          valueA = parseFloat(cellsA[1].innerText.replace(/[^0-9.-]+/g, ""));
+          valueB = parseFloat(cellsB[1].innerText.replace(/[^0-9.-]+/g, ""));
+        } else if (column === "expense") {
+          valueA = parseFloat(cellsA[2].innerText.replace(/[^0-9.-]+/g, ""));
+          valueB = parseFloat(cellsB[2].innerText.replace(/[^0-9.-]+/g, ""));
+        } else if (column === "balance") {
+          valueA = parseFloat(cellsA[3].innerText.replace(/[^0-9.-]+/g, ""));
+          valueB = parseFloat(cellsB[3].innerText.replace(/[^0-9.-]+/g, ""));
+        }
+        return currentSortOrder === "asc" ? valueA - valueB : valueB - valueA;
+      });
+
+      while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+      }
+      rows.forEach(row => {
+        tbody.appendChild(row);
+        const next = row.nextElementSibling;
+        if (next && next.classList.contains("subcat-row")) {
+          tbody.appendChild(next);
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadFinancialData();
+    });
+  </script>
+</body>
+
 </html>
