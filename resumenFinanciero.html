@@ -21,12 +21,17 @@
       .toggle-btn {
         cursor: pointer;
       }
-      /* Ajustes para la tabla en móviles */
+      /* Estilos para la tabla en móviles */
       @media (max-width: 640px) {
-        table th, table td {
+        table th,
+        table td {
           padding: 0.5rem;
           font-size: 0.875rem;
         }
+      }
+      /* Estilos para el acordeón de meses */
+      .month-header {
+        cursor: pointer;
       }
     </style>
   </head>
@@ -40,22 +45,22 @@
         <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
           <div class="bg-green-100 p-4 rounded text-center">
             <h3 class="font-semibold text-green-700">Ingresos</h3>
-            <p id="globalIncome" class="text-1xl font-bold">$0.00</p>
+            <p id="globalIncome" class="text-1xl font-bold">$0</p>
           </div>
           <div class="bg-red-100 p-4 rounded text-center">
             <h3 class="font-semibold text-red-700">Gastos</h3>
-            <p id="globalExpense" class="text-1xl font-bold">$0.00</p>
+            <p id="globalExpense" class="text-1xl font-bold">$0</p>
           </div>
           <div class="bg-blue-100 p-4 rounded text-center">
             <h3 class="font-semibold text-blue-700">Balance</h3>
-            <p id="globalBalance" class="text-1xl font-bold">$0.00</p>
+            <p id="globalBalance" class="text-1xl font-bold">$0</p>
           </div>
         </div>
       </section>
       
-      <!-- Secciones Mensuales -->
+      <!-- Secciones Mensuales (Acordeón) -->
       <div id="monthSections">
-        <!-- Aquí se generarán secciones por cada mes -->
+        <!-- Se generarán secciones por cada mes -->
       </div>
       
       <div id="loading" class="text-center text-gray-600">Cargando datos...</div>
@@ -68,9 +73,9 @@
       const apiKey = "AIzaSyCqWowXx5GonkiHTwLcDz9E1VtXZzVCfv0";
       const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
 
-      // Función para formatear números como moneda
+      // Función para formatear números como moneda sin decimales
       function formatCurrency(value) {
-        return "$" + Number(value).toLocaleString("es-ES", { minimumFractionDigits: 2 });
+        return "$" + Number(value).toLocaleString("es-ES", { maximumFractionDigits: 0 });
       }
 
       // Función para obtener el nombre del mes y año a partir de un objeto Date
@@ -165,7 +170,7 @@
         }
       }
 
-      // Función para renderizar cada sección mensual
+      // Función para renderizar cada sección mensual en formato acordeón
       function renderMonthlySections() {
         const monthSectionsContainer = document.getElementById("monthSections");
         monthSectionsContainer.innerHTML = "";
@@ -173,36 +178,77 @@
         // Ordenar las claves de mes de forma descendente (los meses más recientes primero)
         const sortedMonths = Object.keys(monthlyData).sort((a, b) => b.localeCompare(a));
         
-        sortedMonths.forEach(monthKey => {
+        sortedMonths.forEach((monthKey, index) => {
           const monthObj = monthlyData[monthKey];
           const monthSection = document.createElement("section");
-          monthSection.classList.add("mb-8");
+          monthSection.classList.add("mb-4", "border", "rounded");
           
-          // Encabezado del mes con resumen global
+          // Encabezado del mes (clickable para expandir/contraer)
           const monthHeader = document.createElement("div");
-          monthHeader.classList.add("mb-4");
+          monthHeader.classList.add(
+            "month-header",
+            "bg-gray-200",
+            "p-4",
+            "flex",
+            "justify-between",
+            "items-center",
+            "rounded-t"
+          );
           const monthTitle = getMonthYearString(monthObj.monthDate);
-          const netBalance = monthObj.totalIncome - monthObj.totalExpense;
           monthHeader.innerHTML = `
-            <h2 class="text-1xl font-bold mb-2">${monthTitle}</h2>
-            <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
-              <div class="bg-green-100 p-4 rounded text-center">
-                <h3 class="font-semibold text-green-700">Ingresos</h3>
-                <p class="text-1xl font-bold">${formatCurrency(monthObj.totalIncome)}</p>
-              </div>
-              <div class="bg-red-100 p-4 rounded text-center">
-                <h3 class="font-semibold text-red-700">Gastos</h3>
-                <p class="text-1xl font-bold">${formatCurrency(monthObj.totalExpense)}</p>
-              </div>
-              <div class="bg-blue-100 p-4 rounded text-center">
-                <h3 class="font-semibold text-blue-700">Balance</h3>
-                <p class="text-1xl font-bold">${formatCurrency(netBalance)}</p>
-              </div>
+            <span class="font-bold text-lg">${monthTitle}</span>
+            <svg class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          `;
+          // Contenedor del contenido (tabla) del mes, inicialmente oculto salvo el primero
+          const monthContent = document.createElement("div");
+          monthContent.classList.add("p-4", "border-t");
+          // Mostrar el contenido del primer mes y ocultar los demás
+          if (index === 0) {
+            monthContent.style.display = "block";
+          } else {
+            monthContent.style.display = "none";
+          }
+          
+          // Agregar evento para que al presionar el encabezado se expanda y se contraigan los demás
+          monthHeader.addEventListener("click", () => {
+            // Contraer todas las secciones
+            document.querySelectorAll("#monthSections .month-content").forEach(content => {
+              content.style.display = "none";
+              // Rotar icono hacia abajo
+              content.parentNode.querySelector("svg").classList.remove("rotate-180");
+            });
+            // Expandir la sección actual
+            monthContent.style.display = "block";
+            // Rotar el icono en la sección actual
+            monthHeader.querySelector("svg").classList.add("rotate-180");
+          });
+          
+          monthSection.appendChild(monthHeader);
+          monthContent.classList.add("month-content");
+          
+          // Resumen global del mes (tarjetas)
+          const netBalance = monthObj.totalIncome - monthObj.totalExpense;
+          const summaryDiv = document.createElement("div");
+          summaryDiv.classList.add("grid", "grid-cols-3", "gap-4", "mb-4");
+          summaryDiv.innerHTML = `
+            <div class="bg-green-100 p-4 rounded text-center">
+              <h3 class="font-semibold text-green-700">Ingresos</h3>
+              <p class="text-lg font-bold">${formatCurrency(monthObj.totalIncome)}</p>
+            </div>
+            <div class="bg-red-100 p-4 rounded text-center">
+              <h3 class="font-semibold text-red-700">Gastos</h3>
+              <p class="text-lg font-bold">${formatCurrency(monthObj.totalExpense)}</p>
+            </div>
+            <div class="bg-blue-100 p-4 rounded text-center">
+              <h3 class="font-semibold text-blue-700">Balance</h3>
+              <p class="text-lg font-bold">${formatCurrency(netBalance)}</p>
             </div>
           `;
-          monthSection.appendChild(monthHeader);
+          monthContent.appendChild(summaryDiv);
           
-          // Tabla de resumen por categoría para este mes (con scroll horizontal para móviles)
+          // Tabla de resumen por categoría para este mes (con scroll horizontal)
           const tableContainer = document.createElement("div");
           tableContainer.classList.add("overflow-x-auto", "mb-4");
           const table = document.createElement("table");
@@ -234,7 +280,7 @@
           // Ordenar por defecto la columna "expense" de mayor a menor
           catArray.sort((a, b) => b.expense - a.expense);
           
-          // Obtener los datos de subcategorías para este mes
+          // Datos de subcategorías para este mes
           const subcatData = monthObj.subcategories;
           
           // Crear filas de categoría y asignar funcionalidad para desplegar subcategorías
@@ -257,10 +303,10 @@
           
           table.appendChild(tbody);
           tableContainer.appendChild(table);
-          monthSection.appendChild(tableContainer);
+          monthContent.appendChild(tableContainer);
+          monthSection.appendChild(monthContent);
           monthSectionsContainer.appendChild(monthSection);
         });
-        document.getElementById("loading").classList.add("hidden");
         
         // Agregar eventos de ordenación para cada tabla mensual
         document.querySelectorAll("#monthSections table th.sortable").forEach(th => {
@@ -350,14 +396,14 @@
             if (valueA > valueB) return currentSortOrder === "asc" ? 1 : -1;
             return 0;
           } else if (column === "income") {
-            valueA = parseFloat(cellsA[1].innerText.replace(/[^0-9.-]+/g,""));
-            valueB = parseFloat(cellsB[1].innerText.replace(/[^0-9.-]+/g,""));
+            valueA = parseFloat(cellsA[1].innerText.replace(/[^0-9.-]+/g, ""));
+            valueB = parseFloat(cellsB[1].innerText.replace(/[^0-9.-]+/g, ""));
           } else if (column === "expense") {
-            valueA = parseFloat(cellsA[2].innerText.replace(/[^0-9.-]+/g,""));
-            valueB = parseFloat(cellsB[2].innerText.replace(/[^0-9.-]+/g,""));
+            valueA = parseFloat(cellsA[2].innerText.replace(/[^0-9.-]+/g, ""));
+            valueB = parseFloat(cellsB[2].innerText.replace(/[^0-9.-]+/g, ""));
           } else if (column === "balance") {
-            valueA = parseFloat(cellsA[3].innerText.replace(/[^0-9.-]+/g,""));
-            valueB = parseFloat(cellsB[3].innerText.replace(/[^0-9.-]+/g,""));
+            valueA = parseFloat(cellsA[3].innerText.replace(/[^0-9.-]+/g, ""));
+            valueB = parseFloat(cellsB[3].innerText.replace(/[^0-9.-]+/g, ""));
           }
           return currentSortOrder === "asc" ? valueA - valueB : valueB - valueA;
         });
