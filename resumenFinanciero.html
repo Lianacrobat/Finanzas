@@ -32,23 +32,23 @@
   </head>
   <body class="bg-gray-100 p-4">
     <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow">
-      <h1 class="text-3xl font-bold mb-6 text-center">Resumen Financiero</h1>
+      <h1 class="text-2xl font-bold mb-6 text-center">Resumen Financiero</h1>
       
       <!-- Resumen General -->
       <section id="generalSummary" class="mb-8 hidden">
-        <h2 class="text-2xl font-bold mb-4">Resumen General</h2>
+        <h2 class="text-1xl font-bold mb-4">Resumen General</h2>
         <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
           <div class="bg-green-100 p-4 rounded text-center">
             <h3 class="font-semibold text-green-700">Ingresos</h3>
-            <p id="globalIncome" class="text-xl font-bold">$0.00</p>
+            <p id="globalIncome" class="text-1xl font-bold">$0.00</p>
           </div>
           <div class="bg-red-100 p-4 rounded text-center">
             <h3 class="font-semibold text-red-700">Gastos</h3>
-            <p id="globalExpense" class="text-xl font-bold">$0.00</p>
+            <p id="globalExpense" class="text-1xl font-bold">$0.00</p>
           </div>
           <div class="bg-blue-100 p-4 rounded text-center">
             <h3 class="font-semibold text-blue-700">Balance</h3>
-            <p id="globalBalance" class="text-xl font-bold">$0.00</p>
+            <p id="globalBalance" class="text-1xl font-bold">$0.00</p>
           </div>
         </div>
       </section>
@@ -184,19 +184,19 @@
           const monthTitle = getMonthYearString(monthObj.monthDate);
           const netBalance = monthObj.totalIncome - monthObj.totalExpense;
           monthHeader.innerHTML = `
-            <h2 class="text-2xl font-bold mb-2">${monthTitle}</h2>
+            <h2 class="text-1xl font-bold mb-2">${monthTitle}</h2>
             <div class="grid grid-cols-3 sm:grid-cols-3 gap-4">
               <div class="bg-green-100 p-4 rounded text-center">
                 <h3 class="font-semibold text-green-700">Ingresos</h3>
-                <p class="text-xl font-bold">${formatCurrency(monthObj.totalIncome)}</p>
+                <p class="text-1xl font-bold">${formatCurrency(monthObj.totalIncome)}</p>
               </div>
               <div class="bg-red-100 p-4 rounded text-center">
                 <h3 class="font-semibold text-red-700">Gastos</h3>
-                <p class="text-xl font-bold">${formatCurrency(monthObj.totalExpense)}</p>
+                <p class="text-1xl font-bold">${formatCurrency(monthObj.totalExpense)}</p>
               </div>
               <div class="bg-blue-100 p-4 rounded text-center">
                 <h3 class="font-semibold text-blue-700">Balance</h3>
-                <p class="text-xl font-bold">${formatCurrency(netBalance)}</p>
+                <p class="text-1xl font-bold">${formatCurrency(netBalance)}</p>
               </div>
             </div>
           `;
